@@ -26,7 +26,7 @@ void clear_color_buffer(uint32_t clear_color);
 void set_color_to_buffer(int row, int col, uint32_t color);
 uint32_t get_color_from_buffer(int row, int col);
 void render_color_buffer(void);
-void draw_grid(int cell_size);
+void draw_rectangle(int x, int y, int width, int height, uint32_t color);
 
 int main() {
     is_running = initialize_window();
@@ -95,6 +95,7 @@ void setup(void) {
     );
 
     color_buffer = (uint32_t*) malloc(sizeof(uint32_t) * WINDOW_WIDTH * WINDOW_HEIGHT);
+    assert(color_buffer);
 }
 
 void destroy(void) {
@@ -131,7 +132,9 @@ void render(void) {
     SDL_RenderClear(renderer);
     clear_color_buffer(0xFF000000);
 
-    draw_grid(50);
+    draw_rectangle(100, 100, 50, 80, 0xFFFF0000);
+    draw_rectangle(300, 800, 150, 3000, 0xFF0000FF);
+
     render_color_buffer();
 
     SDL_RenderPresent(renderer);
@@ -147,7 +150,6 @@ void clear_color_buffer(uint32_t clear_color) {
 
 void set_color_to_buffer(int row, int col, uint32_t color) {
     color_buffer[(WINDOW_WIDTH * row) + col] = color;
-    assert(color_buffer);
 };
 
 uint32_t get_color_from_buffer(int row, int col) {
@@ -170,15 +172,23 @@ void render_color_buffer(void) {
     );
 }
 
-void draw_grid(int cell_size) {
-    for (int row = 0; row < WINDOW_HEIGHT; row++) {
-        for (int col = 0; col < WINDOW_WIDTH; col++) {
-            if (
-                (row != 0 && row % cell_size == 0)
-                || (col != 0 && col % cell_size == 0)
-            ) {
-                set_color_to_buffer(row, col, 0xFFFFFFFF);
-            }
+void draw_rectangle(int x, int y, int width, int height, uint32_t color) {
+    // Don't do anything offscreen
+    if (x > WINDOW_WIDTH || y > WINDOW_HEIGHT) {
+        return;
+    }
+
+    // Reduce the rectangle size if it partially goes out of the screen
+    if (x + width > WINDOW_WIDTH) {
+        width = WINDOW_WIDTH - x;
+    }
+    if (y + height > WINDOW_HEIGHT) {
+        height = WINDOW_HEIGHT - y;
+    }
+
+    for (int row = y; row < height + y; row++) {
+        for (int col = x; col < width + x; col++) {
+            set_color_to_buffer(row, col, color);
         }
     }
 }
