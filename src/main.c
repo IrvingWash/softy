@@ -1,5 +1,14 @@
 #include <stdbool.h>
 #include "display.h"
+#include "vector.h"
+
+bool is_running = false;
+
+#define NUMBER_OF_POINST (9 * 9 * 9)
+Vector3 cube_points[NUMBER_OF_POINST];
+Vector2 projected_points[NUMBER_OF_POINST];
+const float FOV_FACTOR = 640;
+Vector3 camera_position = {0, 0, -5};
 
 // Forward declarations
 void setup(void);
@@ -7,8 +16,6 @@ void destroy(void);
 void process_input(void);
 void update(void);
 void render(void);
-
-bool is_running = false;
 
 int main() {
     is_running = initialize_display();
@@ -30,7 +37,18 @@ int main() {
     return 0;
 }
 
-void setup(void) {}
+void setup(void) {
+    int curernt_point = 0;
+    for (float x = -1; x <= 1; x += 0.25) {
+        for (float y = -1; y <= 1; y += 0.25) {
+            for (float z = -1; z <= 1; z += 0.25) {
+                Vector3 point = { x, y, z };
+
+                cube_points[curernt_point++] = point;
+            }
+        }
+    }
+}
 
 void destroy(void) {
     destroy_display();
@@ -53,17 +71,43 @@ void process_input(void) {
     }
 }
 
-void update(void) {}
+Vector2 project(Vector3 point) {
+    Vector2 projected = {
+        point.x / (point.z == 0 ? 1 : point.z) * FOV_FACTOR,
+        point.y / (point.z == 0 ? 1 : point.z) * FOV_FACTOR,
+    };
+
+    return projected;
+}
+
+void update(void) {
+    for (int i = 0; i < NUMBER_OF_POINST; i++) {
+        Vector3 point = cube_points[i];
+
+        point.z -= camera_position.z;
+
+        Vector2 projected = project(point);
+
+        projected_points[i] = projected;
+    }
+}
 
 void render(void) {
     start_drawing();
 
-    draw_rectangle(100, 100, 50, 80, 0xFFFF0000);
-    draw_rectangle(300, 800, 150, 3000, 0xFF0000FF);
-    draw_pixel(500, 100, 0xFFFF0000);
-    draw_pixel(501, 100, 0xFFFF0000);
-    draw_pixel(500, 101, 0xFFFF0000);
-    draw_pixel(501, 102, 0xFFFF0000);
+    const float window_width = get_window_width();
+    const float window_height = get_window_height();
+
+    for (int i = 0; i < NUMBER_OF_POINST; i++) {
+        Vector2 point = projected_points[i];
+
+        draw_rectangle(
+            point.x + window_width / 2,
+            point.y + window_height / 2,
+            4, 4,
+            0xFFFFFF00
+        );
+    }
 
     finish_drawing();
 }

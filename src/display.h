@@ -7,6 +7,9 @@
 bool initialize_display(void);
 void destroy_display(void);
 
+int get_window_width(void);
+int get_window_height(void);
+
 void start_drawing(void);
 void finish_drawing(void);
 
