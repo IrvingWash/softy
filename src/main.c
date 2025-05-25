@@ -26,6 +26,7 @@ void clear_color_buffer(uint32_t clear_color);
 void set_color_to_buffer(int row, int col, uint32_t color);
 uint32_t get_color_from_buffer(int row, int col);
 void render_color_buffer(void);
+void draw_grid(int cell_size);
 
 int main() {
     is_running = initialize_window();
@@ -128,8 +129,9 @@ void update(void) {
 void render(void) {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
-    clear_color_buffer(0xFFFFFF00);
+    clear_color_buffer(0xFF000000);
 
+    draw_grid(50);
     render_color_buffer();
 
     SDL_RenderPresent(renderer);
@@ -166,4 +168,17 @@ void render_color_buffer(void) {
         NULL,
         NULL
     );
+}
+
+void draw_grid(int cell_size) {
+    for (int row = 0; row < WINDOW_HEIGHT; row++) {
+        for (int col = 0; col < WINDOW_WIDTH; col++) {
+            if (
+                (row != 0 && row % cell_size == 0)
+                || (col != 0 && col % cell_size == 0)
+            ) {
+                set_color_to_buffer(row, col, 0xFFFFFFFF);
+            }
+        }
+    }
 }

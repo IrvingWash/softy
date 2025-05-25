@@ -8,7 +8,7 @@ linker_flags = -lSDL2
 
 build:
 	@mkdir -p $(build_path)
-	@echo "Building softy..."
+	@echo "Building softy with these parameters..."
 	gcc $(compile_flags) $(linker_flags) ./src/*.c -o $(exe_path)
 
 run:
