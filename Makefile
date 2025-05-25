@@ -1,3 +1,5 @@
+.PHONY: build
+
 build_path = ./build
 exe_name = main.out
 exe_path = $(build_path)/$(exe_name)
