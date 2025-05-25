@@ -123,9 +123,7 @@ void process_input(void) {
     }
 }
 
-void update(void) {
-    set_color_to_buffer(10, 20, 0xFFFF0000);
-}
+void update(void) {}
 
 void render(void) {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
