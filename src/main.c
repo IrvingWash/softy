@@ -60,6 +60,10 @@ void render(void) {
 
     draw_rectangle(100, 100, 50, 80, 0xFFFF0000);
     draw_rectangle(300, 800, 150, 3000, 0xFF0000FF);
+    draw_pixel(500, 100, 0xFFFF0000);
+    draw_pixel(501, 100, 0xFFFF0000);
+    draw_pixel(500, 101, 0xFFFF0000);
+    draw_pixel(501, 102, 0xFFFF0000);
 
     finish_drawing();
 }

@@ -118,6 +118,10 @@ void render_color_buffer(void) {
     );
 }
 
+void draw_pixel(int x, int y, uint32_t color) {
+    set_color_to_buffer(y, x, color);
+}
+
 void draw_rectangle(int x, int y, int width, int height, uint32_t color) {
     // Don't do anything offscreen
     if (x > WINDOW_WIDTH || y > WINDOW_HEIGHT) {
