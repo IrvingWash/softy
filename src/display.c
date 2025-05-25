@@ -119,6 +119,10 @@ void render_color_buffer(void) {
 }
 
 void draw_pixel(int x, int y, uint32_t color) {
+    if (x > WINDOW_WIDTH || y > WINDOW_HEIGHT) {
+        return;
+    }
+
     set_color_to_buffer(y, x, color);
 }
 
