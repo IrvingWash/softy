@@ -1,22 +1,31 @@
+#include <stdio.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_events.h>
 #include <SDL2/SDL_keycode.h>
 #include <SDL2/SDL_render.h>
 #include <SDL2/SDL_video.h>
-#include <stdio.h>
-#include <stdbool.h>
+
+// Constants
+const int WINDOW_WIDTH = 800;
+const int WINDOW_HEIGHT = 600;
 
 // Globals
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
 bool is_running = false;
+uint32_t* color_buffer = NULL;
 
 // Forward declarations
 bool initialize_window(void);
 void setup(void);
+void destroy(void);
 void process_input(void);
 void update(void);
 void render(void);
+void set_color(int row, int col, uint32_t color);
+uint32_t get_color(int row, int col);
 
 int main() {
     is_running = initialize_window();
@@ -33,6 +42,8 @@ int main() {
         render();
     }
 
+    destroy();
+
     return 0;
 }
 
@@ -46,7 +57,7 @@ bool initialize_window(void) {
     window = SDL_CreateWindow(
         "Softy",
         SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-        800, 600,
+        WINDOW_WIDTH, WINDOW_HEIGHT,
         SDL_WINDOW_BORDERLESS
     );
 
@@ -67,7 +78,17 @@ bool initialize_window(void) {
     return true;
 }
 
-void setup(void) {}
+void setup(void) {
+    color_buffer = (uint32_t*) malloc(sizeof(uint32_t) * WINDOW_WIDTH * WINDOW_HEIGHT);
+}
+
+void destroy(void) {
+    free(color_buffer);
+
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+}
 
 void process_input(void) {
     SDL_Event event;
@@ -85,7 +106,9 @@ void process_input(void) {
     }
 }
 
-void update(void) {}
+void update(void) {
+    set_color(10, 20, 0xFFFF0000);
+}
 
 void render(void) {
     SDL_SetRenderDrawColor(renderer, 0, 0, 50, 255);
@@ -93,4 +116,12 @@ void render(void) {
     SDL_RenderClear(renderer);
 
     SDL_RenderPresent(renderer);
+}
+
+void set_color(int row, int col, uint32_t color) {
+    color_buffer[(WINDOW_WIDTH * row) + col] = color;
+};
+
+uint32_t get_color(int row, int col) {
+    return color_buffer[(WINDOW_WIDTH * row) + col];
 }
