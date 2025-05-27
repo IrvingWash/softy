@@ -1,28 +1,70 @@
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_events.h>
+#include <SDL2/SDL_keycode.h>
+#include <SDL2/SDL_render.h>
+#include <SDL2/SDL_video.h>
+#include <assert.h>
 #include <stdbool.h>
-#include "display.h"
-#include "vector.h"
 
+const int WINDOW_WIDTH = 800;
+const int WINDOW_HEIGHT = 600;
+
+SDL_Window* window = NULL;
+SDL_Renderer* renderer = NULL;
 bool is_running = false;
 
-#define NUMBER_OF_POINST (9 * 9 * 9)
-Vector3 cube_points[NUMBER_OF_POINST];
-Vector2 projected_points[NUMBER_OF_POINST];
-const float FOV_FACTOR = 640;
-Vector3 camera_position = {0, 0, -5};
+void initialize_window(void) {
+    assert(SDL_Init(SDL_INIT_EVERYTHING) == 0);
 
-// Forward declarations
-void setup(void);
-void destroy(void);
-void process_input(void);
-void update(void);
-void render(void);
+    window = SDL_CreateWindow(
+        "softly",
+        SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+        WINDOW_WIDTH, WINDOW_HEIGHT,
+        SDL_WINDOW_BORDERLESS
+    );
+    assert(window);
+
+    renderer = SDL_CreateRenderer(window, -1, 0);
+    assert(renderer);
+}
+
+void setup(void) {
+    is_running = true;
+}
+
+void destroy(void) {
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+}
+
+void process_input(void) {
+    SDL_Event event;
+    SDL_PollEvent(&event);
+
+    switch (event.type) {
+        case SDL_QUIT:
+            is_running = false;
+            break;
+        case SDL_KEYDOWN:
+            if (event.key.keysym.sym == SDLK_ESCAPE) {
+                is_running = false;
+            }
+            break;
+    }
+}
+
+void update(void) {}
+
+void render(void) {
+    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+    SDL_RenderClear(renderer);
+
+    SDL_RenderPresent(renderer);
+}
 
 int main() {
-    is_running = initialize_display();
-
-    if (!is_running) {
-        return 1;
-    }
+    initialize_window();
 
     setup();
 
@@ -35,79 +77,4 @@ int main() {
     destroy();
 
     return 0;
-}
-
-void setup(void) {
-    int curernt_point = 0;
-    for (float x = -1; x <= 1; x += 0.25) {
-        for (float y = -1; y <= 1; y += 0.25) {
-            for (float z = -1; z <= 1; z += 0.25) {
-                Vector3 point = { x, y, z };
-
-                cube_points[curernt_point++] = point;
-            }
-        }
-    }
-}
-
-void destroy(void) {
-    destroy_display();
-}
-
-// @TODO: move this out
-void process_input(void) {
-    SDL_Event event;
-
-    SDL_PollEvent(&event);
-
-    switch (event.type) {
-        case SDL_QUIT:
-            is_running = false;
-            break;
-        case SDL_KEYDOWN:
-            if (event.key.keysym.sym == SDLK_ESCAPE)
-                is_running = false;
-            break;
-    }
-}
-
-Vector2 project(Vector3 point) {
-    Vector2 projected = {
-        point.x / (point.z == 0 ? 1 : point.z) * FOV_FACTOR,
-        point.y / (point.z == 0 ? 1 : point.z) * FOV_FACTOR,
-    };
-
-    return projected;
-}
-
-void update(void) {
-    for (int i = 0; i < NUMBER_OF_POINST; i++) {
-        Vector3 point = cube_points[i];
-
-        point.z -= camera_position.z;
-
-        Vector2 projected = project(point);
-
-        projected_points[i] = projected;
-    }
-}
-
-void render(void) {
-    start_drawing();
-
-    const float window_width = get_window_width();
-    const float window_height = get_window_height();
-
-    for (int i = 0; i < NUMBER_OF_POINST; i++) {
-        Vector2 point = projected_points[i];
-
-        draw_rectangle(
-            point.x + window_width / 2,
-            point.y + window_height / 2,
-            4, 4,
-            0xFFFFFF00
-        );
-    }
-
-    finish_drawing();
 }
