@@ -70,16 +70,6 @@ setup :: () {
     }
 }
 
-project_ortho :: (point: Vector3) -> Vector2 {
-    return .{point.x, point.y} * FOV_FACTOR;
-}
-
-project_persp :: (point: Vector3) -> Vector2 {
-    cameraed := point - camera.position;
-
-    return .{cameraed.x, cameraed.y} / cameraed.z * FOV_FACTOR;
-}
-
 process_input :: () {
     event: SDL_Event;
     SDL_PollEvent(*event);
@@ -114,4 +104,14 @@ render :: () {
     }
 
     finish_drawing();
+}
+
+project_ortho :: (point: Vector3) -> Vector2 {
+    return .{point.x, point.y} * FOV_FACTOR;
+}
+
+project_persp :: (point: Vector3) -> Vector2 {
+    cameraed := point - camera.position;
+
+    return .{cameraed.x, cameraed.y} / cameraed.z * FOV_FACTOR;
 }
