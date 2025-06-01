@@ -1,6 +1,8 @@
 #import "Basic";
 #import "SDL";
 
+#scope_file;
+
 // Didn't found this in the bindings
 SDL_PIXELFORMAT_ARGB8888 :: 372645892;
 
@@ -14,9 +16,18 @@ color_buffer_texture: *SDL_Texture;
 // SDL wants this to be *u32, lazy to try to pass a [..]u32
 color_buffer: *u32;
 
+// For some reason AUDIO doesn't work on my linux machine
+#if OS == .LINUX {
+    MY_SDL_INIT_FLAGS :: SDL_INIT_EVERYTHING & ~SDL_INIT_AUDIO;
+} else {
+    MY_SDL_INIT_FLAGS :: SDL_INIT_EVERYTHING;
+}
+
+#scope_export;
+
 display_init :: () {
     // SDL
-    ok := SDL_Init(SDL_INIT_EVERYTHING);
+    ok := SDL_Init(MY_SDL_INIT_FLAGS);
     assert(ok == 0);
 
     // Window
