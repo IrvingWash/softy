@@ -74,8 +74,6 @@ display_destroy :: () {
 }
 
 start_drawing :: () {
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    SDL_RenderClear(renderer);
     clear_color_buffer(0xFF000000);
 }
 
@@ -90,21 +88,24 @@ draw_pixel :: (x: int, y: int, color: u32) {
 
 draw_rectangle :: (x: int, y: int, width: int, height: int, color: u32) {
     // Don't do anything offscreen
-    if (x > window_width || y > window_height) {
+    if x > window_width || y > window_height {
+        return;
+    }
+    if x + width < 0 || y + height < 0 {
         return;
     }
 
     // Reduce the rectangle size if it partially goes out of the screen
-    if (x + width > window_width) {
+    if x + width > window_width {
         width = window_width - x;
     }
-    if (y + height > window_height) {
+    if y + height > window_height {
         height = window_height - y;
     }
-    if (x < 0) {
+    if x < 0 {
         width = 0 - x;
     }
-    if (y < 0) {
+    if y < 0 {
         height = 0 - x;
     }
 
