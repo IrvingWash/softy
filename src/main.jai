@@ -6,7 +6,7 @@
 is_running: bool;
 
 // The cube
-FOV_FACTOR :: 128;
+FOV_FACTOR :: 640;
 CUBE_POINTS_COUNT :: 9 * 9 * 9;
 
 Cube :: struct {
@@ -15,6 +15,15 @@ Cube :: struct {
 }
 
 cube: Cube;
+
+// Camera
+Camera :: struct {
+    position: Vector3;
+}
+
+camera: Camera = .{
+    position = .{0, 0, -5}
+};
 
 main :: () {
     display_init();
@@ -65,6 +74,10 @@ project_ortho :: (point: Vector3) -> Vector2 {
     return .{point.x, point.y} * FOV_FACTOR;
 }
 
+project_persp :: (point: Vector3) -> Vector2 {
+    return .{point.x, point.y} * FOV_FACTOR / point.z;
+}
+
 process_input :: () {
     event: SDL_Event;
     SDL_PollEvent(*event);
@@ -81,7 +94,7 @@ process_input :: () {
 
 update :: () {
     for point: cube.points {
-        cube.projected_points[it_index] = project_ortho(point);
+        cube.projected_points[it_index] = project_persp(point - camera.position);
     }
 }
 
