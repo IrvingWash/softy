@@ -1,6 +1,8 @@
 #import "Basic";
 #import "SDL";
 
+SDL_PIXELFORMAT_ARGB8888 :: 372645892;
+
 window_width: s32;
 window_height: s32;
 
@@ -37,7 +39,7 @@ display_init :: () {
     // Texture
     color_buffer_texture = SDL_CreateTexture(
         renderer,
-        372645892,
+        SDL_PIXELFORMAT_ARGB8888,
         xx SDL_TextureAccess.STREAMING,
         window_width,
         window_height
