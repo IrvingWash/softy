@@ -48,7 +48,9 @@ display_init :: () {
     );
     assert(color_buffer_texture != null);
 
+    // Color buffer
     color_buffer = alloc(window_width * window_height * size_of(u32));
+    assert(color_buffer != null);
 }
 
 display_destroy :: () {

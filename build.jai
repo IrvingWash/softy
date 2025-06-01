@@ -1,5 +1,3 @@
-#!jai
-
 Compiler :: #import "Compiler";
 #import "Basic";
 File :: #import "File";
