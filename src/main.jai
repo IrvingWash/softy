@@ -75,7 +75,9 @@ project_ortho :: (point: Vector3) -> Vector2 {
 }
 
 project_persp :: (point: Vector3) -> Vector2 {
-    return .{point.x, point.y} * FOV_FACTOR / point.z;
+    cameraed := point - camera.position;
+
+    return .{cameraed.x, cameraed.y} / cameraed.z * FOV_FACTOR;
 }
 
 process_input :: () {
@@ -94,7 +96,7 @@ process_input :: () {
 
 update :: () {
     for point: cube.points {
-        cube.projected_points[it_index] = project_persp(point - camera.position);
+        cube.projected_points[it_index] = project_persp(point);
     }
 }
 
