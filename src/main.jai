@@ -13,6 +13,7 @@ main :: () {
         process_input();
         update();
         render();
+        sleep_milliseconds(16);
     }
 
     display_destroy();
