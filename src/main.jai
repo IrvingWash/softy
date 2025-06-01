@@ -14,6 +14,7 @@ main :: () {
         update();
         render();
         sleep_milliseconds(16);
+        memory_visualizer_per_frame_update();
     }
 
     display_destroy();
