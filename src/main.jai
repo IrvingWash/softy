@@ -6,6 +6,7 @@
 is_running: bool;
 
 // The cube
+FOV_FACTOR :: 128;
 CUBE_POINTS_COUNT :: 9 * 9 * 9;
 
 Cube :: struct {
@@ -52,12 +53,16 @@ setup :: () {
                 cube.points[point_count] = .{x, y, z};
                 point_count += 1;
             }
+
+            z = -1;
         }
+
+        y = -1;
     }
 }
 
 project_ortho :: (point: Vector3) -> Vector2 {
-    return .{point.x, point.y};
+    return .{point.x, point.y} * FOV_FACTOR;
 }
 
 process_input :: () {
@@ -85,8 +90,9 @@ render :: () {
 
     for point: cube.projected_points {
         draw_rectangle(
-            xx point.x,
-            xx point.y,
+            // Add half of window size to translate to the middle of the screen;
+            xx point.x + window_width / 2,
+            xx point.y + window_height / 2 ,
             4, 4,
             0xFFFFFF00
         );

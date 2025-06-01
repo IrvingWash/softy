@@ -6,8 +6,12 @@
 // Didn't found this in the bindings
 SDL_PIXELFORMAT_ARGB8888 :: 372645892;
 
+#scope_export;
+
 window_width: s32;
 window_height: s32;
+
+#scope_file;
 
 window: *SDL_Window;
 renderer: *SDL_Renderer;
