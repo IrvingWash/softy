@@ -25,8 +25,8 @@ main :: () {
         process_input();
         update();
         render();
-        sleep_milliseconds(16);
         memory_visualizer_per_frame_update();
+        sleep_milliseconds(16);
     }
 
     display_destroy();
@@ -92,7 +92,7 @@ render :: () {
         draw_rectangle(
             // Add half of window size to translate to the middle of the screen;
             xx point.x + window_width / 2,
-            xx point.y + window_height / 2 ,
+            xx point.y + window_height / 2,
             4, 4,
             0xFFFFFF00
         );
