@@ -1,6 +1,7 @@
 #import "Basic";
 #import "SDL";
 
+// Didn't found this in the bindings
 SDL_PIXELFORMAT_ARGB8888 :: 372645892;
 
 window_width: s32;
@@ -10,6 +11,7 @@ window: *SDL_Window;
 renderer: *SDL_Renderer;
 color_buffer_texture: *SDL_Texture;
 
+// SDL wants this to be *u32, lazy to try to pass a [..]u32
 color_buffer: *u32;
 
 display_init :: () {
