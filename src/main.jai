@@ -2,6 +2,7 @@
 #import "Math";
 #import "SDL";
 #import,file "display.jai";
+#import,file "vector.jai";
 
 is_running: bool;
 
@@ -86,9 +87,19 @@ process_input :: () {
 }
 
 update :: () {
+    cube.rotation.x += 0.01;
+    cube.rotation.y += 0.01;
+    cube.rotation.z += 0.01;
+
     for point: cube.points {
-        transformed := point;
-        transformed.z -= camera.position.z;
+        // Rotate
+        transformed := rotate_around_x(point, cube.rotation.x);
+        transformed = rotate_around_y(transformed, cube.rotation.y);
+        transformed = rotate_around_z(transformed, cube.rotation.z);
+
+        // Translate
+        transformed -= camera.position;
+
         cube.projected_points[it_index] = project_persp(transformed);
     }
 }
