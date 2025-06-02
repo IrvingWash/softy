@@ -87,8 +87,10 @@ process_input :: () {
 }
 
 update :: () {
-    while !SDL_TICKS_PASSED(SDL_GetTicks(), previous_frame_time + xx FRAME_TARGET_TIME) {};
-
+    time_to_wait := FRAME_TARGET_TIME - (SDL_GetTicks() - previous_frame_time);
+    if time_to_wait > 0 && time_to_wait <= FRAME_TARGET_TIME {
+        SDL_Delay(xx time_to_wait);
+    }
     previous_frame_time = SDL_GetTicks();
 
     cube.rotation.x += 0.01;

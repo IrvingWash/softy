@@ -8,11 +8,6 @@ FPS :: 30;
 M_IN_S: float : 1000;
 FRAME_TARGET_TIME :: M_IN_S / FPS;
 
-// Didn't found this in the bindings
-SDL_TICKS_PASSED :: (A: int, B: int) -> bool {
-    return B - A <= 0;
-} 
-
 #scope_file;
 
 // Didn't found this in the bindings
