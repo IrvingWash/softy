@@ -12,6 +12,7 @@ CUBE_POINTS_COUNT :: 9 * 9 * 9;
 Cube :: struct {
     points: [CUBE_POINTS_COUNT]Vector3;
     projected_points: [CUBE_POINTS_COUNT]Vector2;
+    rotation: Vector3 = .{0, 0, 0};
 }
 
 cube: Cube;
@@ -86,7 +87,9 @@ process_input :: () {
 
 update :: () {
     for point: cube.points {
-        cube.projected_points[it_index] = project_persp(point);
+        transformed := point;
+        transformed.z -= camera.position.z;
+        cube.projected_points[it_index] = project_persp(transformed);
     }
 }
 
@@ -111,7 +114,8 @@ project_ortho :: (point: Vector3) -> Vector2 {
 }
 
 project_persp :: (point: Vector3) -> Vector2 {
-    cameraed := point - camera.position;
-
-    return .{cameraed.x, cameraed.y} / cameraed.z * FOV_FACTOR;
+    return .{
+        point.x * FOV_FACTOR / point.z,
+        point.y * FOV_FACTOR / point.z,
+    };
 }
