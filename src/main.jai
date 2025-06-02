@@ -5,6 +5,7 @@
 #import,file "vector.jai";
 
 is_running: bool;
+previous_frame_time: int; // Milliseconds
 
 // The cube
 FOV_FACTOR :: 640;
@@ -37,7 +38,6 @@ main :: () {
         update();
         render();
         memory_visualizer_per_frame_update();
-        sleep_milliseconds(16);
     }
 
     display_destroy();
@@ -87,6 +87,10 @@ process_input :: () {
 }
 
 update :: () {
+    while !SDL_TICKS_PASSED(SDL_GetTicks(), previous_frame_time + xx FRAME_TARGET_TIME) {};
+
+    previous_frame_time = SDL_GetTicks();
+
     cube.rotation.x += 0.01;
     cube.rotation.y += 0.01;
     cube.rotation.z += 0.01;
