@@ -32,3 +32,11 @@ rotate_around_z :: (v: Vector3, angle: float) -> Vector3 {
         z = v.z,
     };
 }
+
+operator + :: (a: Vector3, b: $T) -> Vector3 {
+    return .{
+        a.x + b,
+        a.y + b,
+        a.z + b,
+    };
+}

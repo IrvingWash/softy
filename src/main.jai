@@ -3,29 +3,19 @@
 #import "SDL";
 #import,file "display.jai";
 #import,file "vector.jai";
+#import,file "mesh.jai";
+#import,file "triangle.jai";
 
 is_running: bool;
 previous_frame_time: int; // Milliseconds
 
-// The cube
 FOV_FACTOR :: 640;
-CUBE_POINTS_COUNT :: 9 * 9 * 9;
 
-Cube :: struct {
-    points: [CUBE_POINTS_COUNT]Vector3;
-    projected_points: [CUBE_POINTS_COUNT]Vector2;
-    rotation: Vector3 = .{0, 0, 0};
-}
+mesh: Mesh;
+triangles_to_render: [12]Triangle;
 
-cube: Cube;
-
-// Camera
-Camera :: struct {
-    position: Vector3;
-}
-
-camera: Camera = .{
-    position = .{0, 0, -5}
+camera: struct {
+    position: Vector3 = .{0,0,-5};
 };
 
 main :: () {
@@ -45,31 +35,6 @@ main :: () {
 
 setup :: () {
     is_running = true;
-
-    // Init the cube
-    point_count: s64 = 0;
-    x := -1.0;
-    y := -1.0;
-    z := -1.0;
-    step := 0.25;
-    while x <= 1.0 {
-        defer x += step;
-
-        while y <= 1.0 {
-            defer y += step;
-
-            while z <= 1.0 {
-                defer z += step;
-
-                cube.points[point_count] = .{x, y, z};
-                point_count += 1;
-            }
-
-            z = -1;
-        }
-
-        y = -1;
-    }
 }
 
 process_input :: () {
@@ -93,41 +58,65 @@ update :: () {
     }
     previous_frame_time = SDL_GetTicks();
 
-    cube.rotation.x += 0.01;
-    cube.rotation.y += 0.01;
-    cube.rotation.z += 0.01;
+    mesh.rotation += 0.01;
 
-    for point: cube.points {
-        // Rotate
-        transformed := rotate_around_x(point, cube.rotation.x);
-        transformed = rotate_around_y(transformed, cube.rotation.y);
-        transformed = rotate_around_z(transformed, cube.rotation.z);
+    for face: mesh.faces {
+        face_vertices: [3]Vector3 = .[
+            mesh.vertices[face.a - 1],
+            mesh.vertices[face.b - 1],
+            mesh.vertices[face.c - 1],
+        ];
 
-        // Translate
-        transformed -= camera.position;
+        projected_triangle: Triangle;
 
-        cube.projected_points[it_index] = project_persp(transformed);
+        for vertex: face_vertices {
+            // Rotate
+            transformed := rotate_around_x(vertex, mesh.rotation.x);
+            transformed = rotate_around_y(transformed, mesh.rotation.y);
+            transformed = rotate_around_z(transformed, mesh.rotation.z);
+
+            transformed -= camera.position;
+
+            // Project
+            projected := project_persp(transformed);
+
+            // Scale and translate (why here?..)
+            projected.x += window_width / 2;
+            projected.y += window_height / 2;
+
+            // Store
+            projected_triangle.points[it_index] = projected;
+        }
+
+        triangles_to_render[it_index] = projected_triangle;
     }
 }
 
 render :: () {
     start_drawing();
 
-    for point: cube.projected_points {
+    for triangle: triangles_to_render {
         draw_rectangle(
-            // Add half of window size to translate to the middle of the screen;
-            xx point.x + window_width / 2,
-            xx point.y + window_height / 2,
-            4, 4,
-            0xFFFFFF00
+            xx triangle.points[0].x,
+            xx triangle.points[0].y,
+            3, 3,
+            0xFFFFFF00,
+        );
+        draw_rectangle(
+            xx triangle.points[1].x,
+            xx triangle.points[1].y,
+            3, 3,
+            0xFFFFFF00,
+        );
+        draw_rectangle(
+            xx triangle.points[2].x,
+            xx triangle.points[2].y,
+            3, 3,
+            0xFFFFFF00,
         );
     }
 
     finish_drawing();
-}
-
-project_ortho :: (point: Vector3) -> Vector2 {
-    return .{point.x, point.y} * FOV_FACTOR;
 }
 
 project_persp :: (point: Vector3) -> Vector2 {
@@ -135,4 +124,8 @@ project_persp :: (point: Vector3) -> Vector2 {
         point.x * FOV_FACTOR / point.z,
         point.y * FOV_FACTOR / point.z,
     };
+}
+
+project_ortho :: (point: Vector3) -> Vector2 {
+    return .{point.x, point.y} * FOV_FACTOR;
 }
