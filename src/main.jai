@@ -12,7 +12,7 @@ previous_frame_time: int; // Milliseconds
 FOV_FACTOR :: 640;
 
 mesh: Mesh;
-triangles_to_render: [12]Triangle;
+triangles_to_render: [..]Triangle;
 
 camera: struct {
     position: Vector3 = .{0,0,-5};
@@ -58,6 +58,10 @@ update :: () {
     }
     previous_frame_time = SDL_GetTicks();
 
+    if triangles_to_render.count != 0 {
+        array_reset(*triangles_to_render);
+    }
+
     mesh.rotation += 0.01;
 
     for face: mesh.faces {
@@ -88,7 +92,7 @@ update :: () {
             projected_triangle.points[it_index] = projected;
         }
 
-        triangles_to_render[it_index] = projected_triangle;
+        array_add(*triangles_to_render, projected_triangle);
     }
 }
 
