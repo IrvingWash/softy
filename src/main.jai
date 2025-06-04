@@ -96,22 +96,13 @@ render :: () {
     start_drawing();
 
     for triangle: triangles_to_render {
-        draw_rectangle(
+        draw_triangle(
             xx triangle.points[0].x,
             xx triangle.points[0].y,
-            3, 3,
-            0xFFFFFF00,
-        );
-        draw_rectangle(
             xx triangle.points[1].x,
             xx triangle.points[1].y,
-            3, 3,
-            0xFFFFFF00,
-        );
-        draw_rectangle(
             xx triangle.points[2].x,
             xx triangle.points[2].y,
-            3, 3,
             0xFFFFFF00,
         );
     }

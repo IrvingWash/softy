@@ -1,5 +1,6 @@
 #import "Basic";
 #import "SDL";
+#import "Math";
 
 #scope_export;
 
@@ -127,6 +128,31 @@ draw_rectangle :: (x: int, y: int, width: int, height: int, color: u32) {
     }
 }
 
+draw_line :: (x0: int, y0: int, x1: int, y1: int, color: u32) {
+    dx := x1 - x0;
+    dy := y1 - y0;
+
+    longest_side_length := ifx abs(dx) >= abs(dy) then abs(dx) else abs(dy);
+
+    x_inc: float = cast(float) dx / cast(float) longest_side_length;
+    y_inc: float = cast(float) dy / cast(float) longest_side_length;
+
+    current_x: float = xx x0;
+    current_y: float = xx y0;
+    for 0..longest_side_length {
+        draw_pixel(round(current_x), round(current_y), color);
+
+        current_x += x_inc;
+        current_y += y_inc;
+    }
+}
+
+draw_triangle :: (x0: int, y0: int, x1: int, y1: int, x2: int, y2: int, color: u32) {
+    draw_line(x0, y0, x1, y1, color);
+    draw_line(x1, y1, x2, y2, color);
+    draw_line(x2, y2, x0, y0, color);
+}
+
 #scope_file;
 
 set_color_to_buffer :: (col: int, row: int, color: u32) {
@@ -163,4 +189,13 @@ render_color_buffer :: () {
         color_buffer_texture,
         null, null
     );
+}
+
+round :: (v: $T) -> int {
+    return ifx v < 0.0 {
+        cast(int) (v - 0.5);
+    }
+    else {
+        cast(int) (v + 0.5);
+    };
 }
