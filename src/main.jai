@@ -11,7 +11,6 @@ previous_frame_time: int; // Milliseconds
 
 FOV_FACTOR :: 640;
 
-mesh: Mesh;
 triangles_to_render: [..]Triangle;
 
 camera: struct {
@@ -30,10 +29,14 @@ main :: () {
         memory_visualizer_per_frame_update();
     }
 
+    array_free(triangles_to_render);
+    destroy_mesh();
     display_destroy();
 }
 
 setup :: () {
+    load_cube_mesh_data();
+
     is_running = true;
 }
 
@@ -58,12 +61,14 @@ update :: () {
     }
     previous_frame_time = SDL_GetTicks();
 
+    // Ugly
     if triangles_to_render.count != 0 {
         array_reset(*triangles_to_render);
     }
 
     mesh.rotation += 0.01;
 
+    // Make triangles to render
     for face: mesh.faces {
         face_vertices: [3]Vector3 = .[
             mesh.vertices[face.a - 1],
@@ -122,5 +127,6 @@ project_persp :: (point: Vector3) -> Vector2 {
 }
 
 project_ortho :: (point: Vector3) -> Vector2 {
+    // Why FOV_FACTORing here?
     return .{point.x, point.y} * FOV_FACTOR;
 }
