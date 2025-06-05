@@ -66,7 +66,7 @@ update :: () {
         array_reset(*triangles_to_render);
     }
 
-    mesh.rotation += 0.01;
+    mesh.rotation.x += 0.01;
 
     // Make triangles to render
     for face: mesh.faces {

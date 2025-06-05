@@ -5,7 +5,7 @@
 #scope_export;
 
 // FPS
-FPS :: 30;
+FPS :: 60;
 M_IN_S: float : 1000;
 FRAME_TARGET_TIME :: M_IN_S / FPS;
 
