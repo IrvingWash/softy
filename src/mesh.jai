@@ -30,29 +30,33 @@ load_obj_data :: (path: string) {
 
     for line: contents {
         if starts_with(line, "v ") {
-            data := split(line, " ");
-            defer array_free(data);
+            vertex: Vector3;
+            ok := scan2(line, "v % % %", *vertex.x, *vertex.y, *vertex.z);
+            if !ok {
+                print("Failed to parse vertex coordinates %\n", line, to_standard_error = true);
 
-            array_add(
-                *mesh.vertices,
-                Vector3.{
-                    x = string_to_float(data[1]),
-                    y = string_to_float(data[2]),
-                    z = string_to_float(data[3]),
-                }
-            );
+                return;
+            }
+
+            array_add(*mesh.vertices, vertex);
         } else if starts_with(line, "f") {
-            data := split(line, " ");
-            defer array_free(data);
-
-            array_add(
-                *mesh.faces,
-                Face.{
-                    a = to_integer(split(data[1], "/")[0]),
-                    b = to_integer(split(data[2], "/")[0]),
-                    c = to_integer(split(data[3], "/")[0]),
-                }
+            face: Face;
+            ti: [3]int;
+            ni: [3]int;
+            ok = scan2(
+                line,
+                "f %/%/% %/%/% %/%/%",
+                *face.a, *ti[0], *ni[0],
+                *face.b, *ti[1], *ni[1],
+                *face.c, *ti[2], *ni[2]
             );
+            if !ok {
+                print("Failed to parse face's vertex indexes %\n", line, to_standard_error = true);
+
+                return;
+            }
+
+            array_add(*mesh.faces, face);
         }
     }
 }
