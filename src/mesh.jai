@@ -1,9 +1,13 @@
 #import "Basic";
 #import "Math";
+#import "Text_File_Handler";
+#import "String";
 #import,file "triangle.jai";
 
 Mesh :: struct {
+    // Vertex buffer
     vertices: [..]Vector3;
+    // Intex buffer
     faces: [..]Face;
     rotation: Vector3;
 };
@@ -13,6 +17,44 @@ mesh: Mesh;
 destroy_mesh :: () {
     array_free(mesh.vertices);
     array_free(mesh.faces);
+}
+
+load_obj_data :: (path: string) {
+    ok, contents := file_to_array(path);
+    if !ok {
+        print("Failed to read file %\n", path, to_standard_error = true);
+
+        return;
+    }
+    defer array_free(contents);
+
+    for line: contents {
+        if starts_with(line, "v ") {
+            data := split(line, " ");
+            defer array_free(data);
+
+            array_add(
+                *mesh.vertices,
+                Vector3.{
+                    x = string_to_float(data[1]),
+                    y = string_to_float(data[2]),
+                    z = string_to_float(data[3]),
+                }
+            );
+        } else if starts_with(line, "f") {
+            data := split(line, " ");
+            defer array_free(data);
+
+            array_add(
+                *mesh.faces,
+                Face.{
+                    a = to_integer(split(data[1], "/")[0]),
+                    b = to_integer(split(data[2], "/")[0]),
+                    c = to_integer(split(data[3], "/")[0]),
+                }
+            );
+        }
+    }
 }
 
 load_cube_mesh_data :: () {
@@ -54,4 +96,3 @@ load_cube_mesh_data :: () {
         ]
     );
 }
-

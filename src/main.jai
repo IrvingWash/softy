@@ -35,7 +35,7 @@ main :: () {
 }
 
 setup :: () {
-    load_cube_mesh_data();
+    load_obj_data("./assets/f22.obj");
 
     is_running = true;
 }
