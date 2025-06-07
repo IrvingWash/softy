@@ -99,10 +99,13 @@ update :: () {
             v_b := triangle_transformed_vertices[1];
             v_c := triangle_transformed_vertices[2];
 
-            v_ab := v_b - v_a;
-            v_ac := v_c - v_a;
+            // No need to normalize at this point.
+            v_ab := normalize(v_b - v_a);
+            // No need to normalize at this point.
+            v_ac := normalize(v_c - v_a);
 
-            normal := cross_product(v_ab, v_ac);
+            // No need to normalize at this point.
+            normal := normalize(cross_product(v_ab, v_ac));
 
             camera_ray := camera.position - v_a;
 
