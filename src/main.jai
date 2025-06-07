@@ -137,17 +137,19 @@ update :: () {
 render :: () {
     start_drawing();
 
-    for triangle: triangles_to_render {
-        draw_triangle(
-            xx triangle.points[0].x,
-            xx triangle.points[0].y,
-            xx triangle.points[1].x,
-            xx triangle.points[1].y,
-            xx triangle.points[2].x,
-            xx triangle.points[2].y,
-            0xFFFFFF00,
-        );
-    }
+    // for triangle: triangles_to_render {
+    //     draw_triangle(
+    //         xx triangle.points[0].x,
+    //         xx triangle.points[0].y,
+    //         xx triangle.points[1].x,
+    //         xx triangle.points[1].y,
+    //         xx triangle.points[2].x,
+    //         xx triangle.points[2].y,
+    //         0xFFFFFF00,
+    //     );
+    // }
+
+    draw_triangle_filled(300, 100, 50, 400, 500, 700, 0xFF00FF00);
 
     finish_drawing();
 }

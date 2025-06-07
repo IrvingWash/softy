@@ -153,7 +153,37 @@ draw_triangle :: (x0: int, y0: int, x1: int, y1: int, x2: int, y2: int, color: u
     draw_line(x2, y2, x0, y0, color);
 }
 
+draw_triangle_filled :: (x0: int, y0: int, x1: int, y1: int, x2: int, y2: int, color: u32) {
+    // Sort vertices
+    if y0 > y1 {
+        y0,y1 = y1,y0;
+        x0,x1 = x1,x0;
+    }
+    if y1 > y2 {
+        y1,y2 = y2,y1;
+        x1,x2 = x2,x1;
+    }
+    if y0 > y1 {
+        y0,y1 = y1,y0;
+        x0,x1 = x1,x0;
+    }
+
+    // Find the mid point
+    // @Scary check the casts
+    my := y1;
+    mx := (
+        cast(float)(x2 - x0) * cast(float)(y1 - y0)
+        / cast(float) (y2 - y0)
+    ) + x0;
+
+    draw_flat_bottom(x0, y0, x1, y1, xx mx, my, color);
+    draw_flat_top(x1, y1, xx mx, my, x2, y2, color);
+}
+
 #scope_file;
+
+draw_flat_bottom :: (x0: int, y0: int, x1: int, y1: int, mx: int, my: int, color: u32) {};
+draw_flat_top :: (x1: int, y1: int, mx: int, my: int, x2: int, y2: int, color: u32) {};
 
 set_color_to_buffer :: (col: int, row: int, color: u32) {
     if (
