@@ -14,7 +14,7 @@ FOV_FACTOR :: 640;
 triangles_to_render: [..]Triangle;
 
 camera: struct {
-    position: Vector3 = .{0,0,-5};
+    position: Vector3 = .{0,0,0};
 };
 
 main :: () {
@@ -35,7 +35,7 @@ main :: () {
 }
 
 setup :: () {
-    load_obj_data("./assets/f22.obj");
+    load_obj_data("./assets/cube.obj");
 
     is_running = true;
 }
@@ -67,6 +67,8 @@ update :: () {
     }
 
     mesh.rotation.x += 0.01;
+    mesh.rotation.y += 0.01;
+    mesh.rotation.z += 0.01;
 
     // Make triangles to render
     for face: mesh.faces {
@@ -76,28 +78,56 @@ update :: () {
             mesh.vertices[face.c - 1],
         ];
 
-        projected_triangle: Triangle;
-
+        // Transform
+        triangle_transformed_vertices: [3]Vector3;
         for vertex: face_vertices {
             // Rotate
             transformed := rotate_around_x(vertex, mesh.rotation.x);
             transformed = rotate_around_y(transformed, mesh.rotation.y);
             transformed = rotate_around_z(transformed, mesh.rotation.z);
 
-            transformed -= camera.position;
+            // Translate
+            transformed.z += 5;
 
-            // Project
-            projected := project_persp(transformed);
+            // Store to pass to projection phaze
+            triangle_transformed_vertices[it_index] = transformed;
+        }
 
-            // Scale and translate (why here?..)
+        // Cull backfaces
+        {
+            v_a := triangle_transformed_vertices[0];
+            v_b := triangle_transformed_vertices[1];
+            v_c := triangle_transformed_vertices[2];
+
+            v_ab := v_b - v_a;
+            v_ac := v_c - v_a;
+
+            normal := cross_product(v_ab, v_ac);
+
+            camera_ray := camera.position - v_a;
+
+            normal_and_camera_alignment := dot_product(normal, camera_ray);
+
+            if normal_and_camera_alignment < 0 {
+                // Don't project and don't store in triangles_to_render
+                continue;
+            }
+        }
+
+        processed_triangle: Triangle;
+        // Project
+        for vertex: triangle_transformed_vertices {
+            projected := project_persp(vertex);
+
+            // Scale and translate (why here and not in the Transform phaze above?..)
             projected.x += window_width / 2;
             projected.y += window_height / 2;
 
-            // Store
-            projected_triangle.points[it_index] = projected;
+            // Store finalized vertices that will be rendered
+            processed_triangle.points[it_index] = projected;
         }
 
-        array_add(*triangles_to_render, projected_triangle);
+        array_add(*triangles_to_render, processed_triangle);
     }
 }
 

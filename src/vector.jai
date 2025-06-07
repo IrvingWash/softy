@@ -40,3 +40,11 @@ operator + :: (a: Vector3, b: $T) -> Vector3 {
         a.z + b,
     };
 }
+
+operator - :: (a: Vector3, b: $T) -> Vector3 {
+    return .{
+        a.x - b,
+        a.y - b,
+        a.z - b,
+    };
+}
