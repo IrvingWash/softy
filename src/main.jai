@@ -6,7 +6,7 @@
 #import,file "mesh.jai";
 #import,file "triangle.jai";
 
-SIMPLE_MODE :: true;
+SIMPLE_MODE :: false;
 
 is_running: bool;
 previous_frame_time: int; // Milliseconds
@@ -186,7 +186,7 @@ render :: () {
                     xx triangle.points[1].y,
                     xx triangle.points[2].x,
                     xx triangle.points[2].y,
-                    0xFF00FF00,
+                    0xFF333333,
                 );
         }
     }
