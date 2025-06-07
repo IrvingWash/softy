@@ -24,6 +24,7 @@ Render_Mode :: enum u8 {
 }
 
 render_mode: Render_Mode;
+should_cull_backfaces: bool = true;
 
 main :: () {
     display_init();
@@ -65,6 +66,8 @@ process_input :: () {
                     render_mode = .Filled;
                 case .SDLK_3;
                     render_mode = .Wireframe_Filled;
+                case .SDLK_c;
+                    should_cull_backfaces = !should_cull_backfaces;
             }
     }
 }
@@ -109,7 +112,7 @@ update :: () {
         }
 
         // Cull backfaces
-        {
+        if should_cull_backfaces {
             v_a := triangle_transformed_vertices[0];
             v_b := triangle_transformed_vertices[1];
             v_c := triangle_transformed_vertices[2];
@@ -153,7 +156,6 @@ render :: () {
     start_drawing();
 
     for triangle: triangles_to_render {
-        print("%\n", render_mode);
         if render_mode == {
             case .Filled; #through;
             case .Wireframe_Filled;
