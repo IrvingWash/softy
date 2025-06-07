@@ -163,6 +163,13 @@ render :: () {
 }
 
 project_persp :: (point: Vector3) -> Vector2 {
+    if point.z == 0 {
+        return .{
+            point.x * FOV_FACTOR,
+            point.y * FOV_FACTOR,
+        };
+    }
+
     return .{
         point.x * FOV_FACTOR / point.z,
         point.y * FOV_FACTOR / point.z,

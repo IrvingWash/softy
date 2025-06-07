@@ -134,6 +134,10 @@ draw_line :: (x0: int, y0: int, x1: int, y1: int, color: u32) {
 
     longest_side_length := ifx abs(dx) >= abs(dy) then abs(dx) else abs(dy);
 
+    if longest_side_length == 0 {
+        return;
+    }
+
     x_inc: float = cast(float) dx / cast(float) longest_side_length;
     y_inc: float = cast(float) dy / cast(float) longest_side_length;
 
@@ -168,6 +172,10 @@ draw_triangle_filled :: (x0: int, y0: int, x1: int, y1: int, x2: int, y2: int, c
         x0,x1 = x1,x0;
     }
 
+    if cast(float) (y2 - y0) == 0 {
+        return;
+    }
+
     // Find the mid point
     // @Scary check the casts
     my := y1;
@@ -184,6 +192,10 @@ draw_triangle_filled :: (x0: int, y0: int, x1: int, y1: int, x2: int, y2: int, c
 #scope_file;
 
 draw_flat_bottom :: (x0: int, y0: int, x1: int, y1: int, x2: int, y2: int, color: u32) {
+    if cast(float) (y1 - y0) == 0 || cast(float) y2 - y0 == 0 {
+        return;
+    }
+
     inv_slope_1 := cast(float) (x1 - x0) / cast(float) (y1 - y0);
     inv_slope_2 := cast(float) (x2 - x0) / cast(float) (y2 - y0);
 
@@ -199,6 +211,10 @@ draw_flat_bottom :: (x0: int, y0: int, x1: int, y1: int, x2: int, y2: int, color
 };
 
 draw_flat_top :: (x0: int, y0: int, x1: int, y1: int, x2: int, y2: int, color: u32) {
+    if cast(float) (y2 - y0) == 0 || cast(float) (y2 - y1) == 0 {
+        return;
+    }
+
     inv_slope_1 := cast(float) (x2 - x0) / cast(float) (y2 - y0);
     inv_slope_2 := cast(float) (x2 - x1) / cast(float) (y2 - y1);
 
