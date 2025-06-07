@@ -1,12 +1,13 @@
 #import "Basic"()(MEMORY_DEBUGGER=true);
 #import "Math";
 #import "SDL";
+#import "Sort";
 #import,file "display.jai";
 #import,file "vector.jai";
 #import,file "mesh.jai";
 #import,file "triangle.jai";
 
-SIMPLE_MODE :: false;
+SIMPLE_MODE :: true;
 
 is_running: bool;
 previous_frame_time: int; // Milliseconds
@@ -141,7 +142,14 @@ update :: () {
             }
         }
 
-        processed_triangle: Triangle = .{color = face.color};
+        processed_triangle: Triangle = .{
+            color = face.color,
+            average_depth = (
+                triangle_transformed_vertices[0].z
+                + triangle_transformed_vertices[1].z
+                + triangle_transformed_vertices[2].z
+            ) / 3,
+        };
         // Project
         for vertex: triangle_transformed_vertices {
             projected := project_persp(vertex);
@@ -159,6 +167,8 @@ update :: () {
 }
 
 render :: () {
+    quick_sort(triangles_to_render, (a, b) => b.average_depth - a.average_depth);
+
     start_drawing();
 
     for triangle: triangles_to_render {

@@ -12,4 +12,5 @@ Face :: struct {
 Triangle :: struct {
     points: [3]Vector2;
     color: u32 = 0xFFFFFFFF;
+    average_depth: float;
 }
