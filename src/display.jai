@@ -176,14 +176,42 @@ draw_triangle_filled :: (x0: int, y0: int, x1: int, y1: int, x2: int, y2: int, c
         / cast(float) (y2 - y0)
     ) + x0;
 
+    // And finally draw
     draw_flat_bottom(x0, y0, x1, y1, xx mx, my, color);
     draw_flat_top(x1, y1, xx mx, my, x2, y2, color);
 }
 
 #scope_file;
 
-draw_flat_bottom :: (x0: int, y0: int, x1: int, y1: int, mx: int, my: int, color: u32) {};
-draw_flat_top :: (x1: int, y1: int, mx: int, my: int, x2: int, y2: int, color: u32) {};
+draw_flat_bottom :: (x0: int, y0: int, x1: int, y1: int, x2: int, y2: int, color: u32) {
+    inv_slope_1 := cast(float) (x1 - x0) / cast(float) (y1 - y0);
+    inv_slope_2 := cast(float) (x2 - x0) / cast(float) (y2 - y0);
+
+    x_start: float = xx x0;
+    x_end: float = xx x0;
+
+    for y0..y2 {
+        draw_line(xx x_start, it, xx x_end, it, color);
+
+        x_start += inv_slope_1;
+        x_end += inv_slope_2;
+    }
+};
+
+draw_flat_top :: (x0: int, y0: int, x1: int, y1: int, x2: int, y2: int, color: u32) {
+    inv_slope_1 := cast(float) (x2 - x0) / cast(float) (y2 - y0);
+    inv_slope_2 := cast(float) (x2 - x1) / cast(float) (y2 - y1);
+
+    x_start: float = xx x2;
+    x_end: float = xx x2;
+
+    for #v2 < y0..y2 {
+        draw_line(xx x_start, it, xx x_end, it, color);
+
+        x_start -= inv_slope_1;
+        x_end -= inv_slope_2;
+    }
+};
 
 set_color_to_buffer :: (col: int, row: int, color: u32) {
     if (

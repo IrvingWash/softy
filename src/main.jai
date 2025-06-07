@@ -35,7 +35,7 @@ main :: () {
 }
 
 setup :: () {
-    load_obj_data("./assets/cube.obj");
+    load_obj_data("./assets/f22.obj");
 
     is_running = true;
 }
@@ -137,19 +137,27 @@ update :: () {
 render :: () {
     start_drawing();
 
-    // for triangle: triangles_to_render {
-    //     draw_triangle(
-    //         xx triangle.points[0].x,
-    //         xx triangle.points[0].y,
-    //         xx triangle.points[1].x,
-    //         xx triangle.points[1].y,
-    //         xx triangle.points[2].x,
-    //         xx triangle.points[2].y,
-    //         0xFFFFFF00,
-    //     );
-    // }
+    for triangle: triangles_to_render {
+        draw_triangle_filled(
+            xx triangle.points[0].x,
+            xx triangle.points[0].y,
+            xx triangle.points[1].x,
+            xx triangle.points[1].y,
+            xx triangle.points[2].x,
+            xx triangle.points[2].y,
+            0xFFFFFFFF,
+        );
 
-    draw_triangle_filled(300, 100, 50, 400, 500, 700, 0xFF00FF00);
+        draw_triangle(
+            xx triangle.points[0].x,
+            xx triangle.points[0].y,
+            xx triangle.points[1].x,
+            xx triangle.points[1].y,
+            xx triangle.points[2].x,
+            xx triangle.points[2].y,
+            0xFF000000,
+        );
+    }
 
     finish_drawing();
 }
