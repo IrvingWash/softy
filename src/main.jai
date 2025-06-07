@@ -17,6 +17,14 @@ camera: struct {
     position: Vector3 = .{0,0,0};
 };
 
+Render_Mode :: enum u8 {
+    Wireframe;
+    Filled;
+    Wireframe_Filled;
+}
+
+render_mode: Render_Mode;
+
 main :: () {
     display_init();
 
@@ -48,8 +56,15 @@ process_input :: () {
         case .SDL_QUIT;
             is_running = false;
         case .SDL_KEYDOWN;
-            if event.key.keysym.sym == .SDLK_ESCAPE {
-                is_running = false;
+            if event.key.keysym.sym ==  {
+                case .SDLK_ESCAPE;
+                    is_running = false;
+                case .SDLK_1;
+                    render_mode = .Wireframe;
+                case .SDLK_2;
+                    render_mode = .Filled;
+                case .SDLK_3;
+                    render_mode = .Wireframe_Filled;
             }
     }
 }
@@ -138,25 +153,34 @@ render :: () {
     start_drawing();
 
     for triangle: triangles_to_render {
-        draw_triangle_filled(
-            xx triangle.points[0].x,
-            xx triangle.points[0].y,
-            xx triangle.points[1].x,
-            xx triangle.points[1].y,
-            xx triangle.points[2].x,
-            xx triangle.points[2].y,
-            0xFFFFFFFF,
-        );
+        print("%\n", render_mode);
+        if render_mode == {
+            case .Filled; #through;
+            case .Wireframe_Filled;
+                draw_triangle_filled(
+                    xx triangle.points[0].x,
+                    xx triangle.points[0].y,
+                    xx triangle.points[1].x,
+                    xx triangle.points[1].y,
+                    xx triangle.points[2].x,
+                    xx triangle.points[2].y,
+                    0xFFFFFFFF,
+                );
+        }
 
-        draw_triangle(
-            xx triangle.points[0].x,
-            xx triangle.points[0].y,
-            xx triangle.points[1].x,
-            xx triangle.points[1].y,
-            xx triangle.points[2].x,
-            xx triangle.points[2].y,
-            0xFF000000,
-        );
+        if render_mode == {
+            case .Wireframe; #through;
+            case .Wireframe_Filled;
+                draw_triangle(
+                    xx triangle.points[0].x,
+                    xx triangle.points[0].y,
+                    xx triangle.points[1].x,
+                    xx triangle.points[1].y,
+                    xx triangle.points[2].x,
+                    xx triangle.points[2].y,
+                    0xFF00FF00,
+                );
+        }
     }
 
     finish_drawing();
