@@ -6,6 +6,8 @@
 #import,file "mesh.jai";
 #import,file "triangle.jai";
 
+SIMPLE_MODE :: true;
+
 is_running: bool;
 previous_frame_time: int; // Milliseconds
 
@@ -44,7 +46,11 @@ main :: () {
 }
 
 setup :: () {
-    load_obj_data("./assets/f22.obj");
+    #if SIMPLE_MODE {
+        load_cube_mesh_data();
+    } else {
+        load_obj_data("./assets/f22.obj");
+    }
 
     is_running = true;
 }
@@ -135,7 +141,7 @@ update :: () {
             }
         }
 
-        processed_triangle: Triangle;
+        processed_triangle: Triangle = .{color = face.color};
         // Project
         for vertex: triangle_transformed_vertices {
             projected := project_persp(vertex);
@@ -166,7 +172,7 @@ render :: () {
                     xx triangle.points[1].y,
                     xx triangle.points[2].x,
                     xx triangle.points[2].y,
-                    0xFFFFFFFF,
+                    triangle.color,
                 );
         }
 
