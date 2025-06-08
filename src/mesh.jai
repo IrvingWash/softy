@@ -83,23 +83,23 @@ load_cube_mesh_data :: () {
         mesh.faces,
         ..Face.[
             // Front
-            .{1, 2, 3, 0xFFFF0000},
-            .{1, 3, 4, 0xFFFF0000},
+            .{1, 2, 3, 0xFFFFFFFF},
+            .{1, 3, 4, 0xFFFFFFFF},
             // Right
-            .{4, 3, 5, 0xFF00FF00},
-            .{4, 5, 6, 0xFF00FF00},
+            .{4, 3, 5, 0xFFFFFFFF},
+            .{4, 5, 6, 0xFFFFFFFF},
             // Back
-            .{6, 5, 7, 0xFF0000FF},
-            .{6, 7, 8, 0xFF0000FF},
+            .{6, 5, 7, 0xFFFFFFFF},
+            .{6, 7, 8, 0xFFFFFFFF},
             // Left
-            .{8, 7, 2, 0xFFFFFF00},
-            .{8, 2, 1, 0xFFFFFF00},
+            .{8, 7, 2, 0xFFFFFFFF},
+            .{8, 2, 1, 0xFFFFFFFF},
             // Top
-            .{2, 7, 5, 0xFFFF00FF},
-            .{2, 5, 3, 0xFFFF00FF},
+            .{2, 7, 5, 0xFFFFFFFF},
+            .{2, 5, 3, 0xFFFFFFFF},
             // Bottom
-            .{6, 8, 1, 0xFF00FFFF},
-            .{6, 1, 4, 0xFF00FFFF},
+            .{6, 8, 1, 0xFFFFFFFF},
+            .{6, 1, 4, 0xFFFFFFFF},
         ]
     );
 }

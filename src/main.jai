@@ -7,6 +7,7 @@
 #import,file "mesh.jai";
 #import,file "triangle.jai";
 #import,file "matrix.jai";
+#import,file "light.jai";
 
 SIMPLE_MODE :: false;
 
@@ -16,6 +17,7 @@ triangles_to_render: [..]Triangle;
 projection_matrix: Matrix4;
 render_mode: Render_Mode;
 should_cull_backfaces: bool = true;
+sun: Light;
 
 Render_Mode :: enum u8 {
     Wireframe;
@@ -53,11 +55,19 @@ setup :: () {
     }
 
     projection_matrix = make_left_handed_perspective_projection_matrix4(
-        fov_angle = 80.0 * PI / 180.0,
+        fov_angle = 60.0 * PI / 180.0,
         aspect_inv = cast(float) window_height / cast(float) window_width,
         z_near = 0.1, // why
         z_far = 100, // why
     );
+
+    sun = .{
+        direction = normalize(Vector3.{
+            x = 0,
+            y = 0,
+            z = 1,
+        }),
+    };
 
     is_running = true;
 }
@@ -156,15 +166,33 @@ update :: () {
             }
         }
 
+        // Shade
+        shaded_color: u32 = ---;
+        {
+            // @Copy_and_paste from the culling section above
+            v_a := triangle_transformed_vertices[0].xyz;
+            v_b := triangle_transformed_vertices[1].xyz;
+            v_c := triangle_transformed_vertices[2].xyz;
+
+            v_ab := normalize(v_b - v_a);
+            v_ac := normalize(v_c - v_a);
+
+            normal := normalize(cross_product(v_ab, v_ac));
+
+            normal_and_sun_ray_alignment := -dot_product(normal, sun.direction);
+
+            shaded_color = apply_light_intensity(face.color, normal_and_sun_ray_alignment);
+        }
+
+        // Project
         processed_triangle: Triangle = .{
-            color = face.color,
+            color = shaded_color,
             average_depth = (
                 triangle_transformed_vertices[0].z
                 + triangle_transformed_vertices[1].z
                 + triangle_transformed_vertices[2].z
             ) / 3,
         };
-        // Project
         for vertex: triangle_transformed_vertices {
             projected := project_persp(projection_matrix, vertex);
 
