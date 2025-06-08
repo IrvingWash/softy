@@ -8,7 +8,7 @@
 #import,file "triangle.jai";
 #import,file "matrix.jai";
 
-SIMPLE_MODE :: false;
+SIMPLE_MODE :: true;
 
 is_running: bool;
 previous_frame_time: int; // Milliseconds
@@ -104,6 +104,11 @@ update :: () {
     x_rotation_matrix := make_rotation_around_x_matrix4(mesh.rotation.x);
     y_rotation_matrix := make_rotation_around_y_matrix4(mesh.rotation.y);
     z_rotation_matrix := make_rotation_around_z_matrix4(mesh.rotation.z);
+    world_matrix := scale_matrix * Matrix4_Identity;
+    world_matrix = z_rotation_matrix * world_matrix;
+    world_matrix = y_rotation_matrix * world_matrix;
+    world_matrix = x_rotation_matrix * world_matrix;
+    world_matrix = translation_matrix * world_matrix;
 
     // Make triangles to render
     for face: mesh.faces {
@@ -116,16 +121,7 @@ update :: () {
         // Transform
         triangle_transformed_vertices: [3]Vector4;
         for vertex: face_vertices {
-            // Scale
-            transformed := scale_matrix * make_vector4(vertex, 1);
-
-            // Rotate
-            transformed = x_rotation_matrix * transformed;
-            transformed = y_rotation_matrix * transformed;
-            transformed = z_rotation_matrix * transformed;
-
-            // Translate
-            transformed = translation_matrix * transformed;
+            transformed := world_matrix * make_vector4(vertex, 1);
 
             // Store to pass to projection phaze
             triangle_transformed_vertices[it_index] = transformed;
