@@ -88,9 +88,9 @@ update :: () {
     previous_frame_time = SDL_GetTicks();
 
     // Update the entity
-    mesh.scale += 0.002;
+    mesh.scale += 0.001;
     mesh.rotation += 0.01;
-    mesh.translation += 0.01;
+    mesh.translation += 0.001;
     mesh.translation.z = 5;
 
     // Prepare for drawing
