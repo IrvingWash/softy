@@ -104,7 +104,7 @@ update :: () {
 
     // Update the entity
     mesh.scale += Vector3.{};
-    mesh.rotation += Vector3.{0.01, 0, 0};
+    mesh.rotation += Vector3.{0.005, 0, 0};
     mesh.translation += Vector3.{};
     mesh.translation.z = 5;
 
@@ -200,6 +200,10 @@ update :: () {
             projected.x *= window_width / 2.0;
             projected.y *= window_height / 2.0;
 
+            // Invert ys to account for flipped y in our screen
+            // projected.x *= -1;
+            projected.y *= -1;
+
             // Tanslate (why here and not in the Transform phaze above?..)
             projected.x += window_width / 2.0;
             projected.y += window_height / 2.0;
@@ -249,4 +253,3 @@ render :: () {
 
     finish_drawing();
 }
-
