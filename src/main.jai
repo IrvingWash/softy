@@ -12,10 +12,8 @@ SIMPLE_MODE :: true;
 
 is_running: bool;
 previous_frame_time: int; // Milliseconds
-
-FOV_FACTOR :: 640;
-
 triangles_to_render: [..]Triangle;
+projection_matrix: Matrix4;
 
 camera: struct {
     position: Vector3 = .{0,0,0};
@@ -54,6 +52,13 @@ setup :: () {
         load_obj_data("./assets/f22.obj");
     }
 
+    projection_matrix = make_left_handed_perspective_projection_matrix4(
+        fov_angle = 60.0 * PI / 180.0,
+        aspect_inv = cast(float) window_height / cast(float) window_width,
+        z_near = 0.1, // why
+        z_far = 100, // why
+    );
+
     is_running = true;
 }
 
@@ -88,9 +93,9 @@ update :: () {
     previous_frame_time = SDL_GetTicks();
 
     // Update the entity
-    mesh.scale += 0.001;
-    mesh.rotation += 0.01;
-    mesh.translation += 0.001;
+    mesh.scale += Vector3.{};
+    mesh.rotation += Vector3.{0.01, 0, 0};
+    mesh.translation += Vector3.{};
     mesh.translation.z = 5;
 
     // Prepare for drawing
@@ -161,14 +166,18 @@ update :: () {
         };
         // Project
         for vertex: triangle_transformed_vertices {
-            projected := project_persp(vertex.xyz);
+            projected := project_persp(projection_matrix, vertex);
 
-            // Scale and translate (why here and not in the Transform phaze above?..)
-            projected.x += window_width / 2;
-            projected.y += window_height / 2;
+            // Scale (why here and not in the Transform phaze above?..)
+            projected.x *= window_width / 2.0;
+            projected.y *= window_height / 2.0;
+
+            // Tanslate (why here and not in the Transform phaze above?..)
+            projected.x += window_width / 2.0;
+            projected.y += window_height / 2.0;
 
             // Store finalized vertices that will be rendered
-            processed_triangle.points[it_index] = projected;
+            processed_triangle.points[it_index] = projected.xy;
         }
 
         array_add(*triangles_to_render, processed_triangle);
@@ -213,21 +222,3 @@ render :: () {
     finish_drawing();
 }
 
-project_persp :: (point: Vector3) -> Vector2 {
-    if point.z == 0 {
-        return .{
-            point.x * FOV_FACTOR,
-            point.y * FOV_FACTOR,
-        };
-    }
-
-    return .{
-        point.x * FOV_FACTOR / point.z,
-        point.y * FOV_FACTOR / point.z,
-    };
-}
-
-project_ortho :: (point: Vector3) -> Vector2 {
-    // Why FOV_FACTORing here?
-    return .{point.x, point.y} * FOV_FACTOR;
-}
