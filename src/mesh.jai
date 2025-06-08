@@ -9,6 +9,9 @@ Mesh :: struct {
     vertices: [..]Vector3;
     // Intex buffer
     faces: [..]Face;
+
+    translatin: Vector3;
+    scale: Vector3 = .{1, 1, 1};
     rotation: Vector3;
 };
 

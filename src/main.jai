@@ -7,7 +7,7 @@
 #import,file "mesh.jai";
 #import,file "triangle.jai";
 
-SIMPLE_MODE :: true;
+SIMPLE_MODE :: false;
 
 is_running: bool;
 previous_frame_time: int; // Milliseconds
@@ -91,9 +91,14 @@ update :: () {
         array_reset(*triangles_to_render);
     }
 
+    mesh.scale.x += 0.002;
+    mesh.scale.y += 0.002;
+    mesh.scale.z += 0.002;
     mesh.rotation.x += 0.01;
     mesh.rotation.y += 0.01;
     mesh.rotation.z += 0.01;
+
+    scale_matrix := make_scale_matrix4(mesh.scale);
 
     // Make triangles to render
     for face: mesh.faces {
@@ -104,12 +109,10 @@ update :: () {
         ];
 
         // Transform
-        triangle_transformed_vertices: [3]Vector3;
+        triangle_transformed_vertices: [3]Vector4;
         for vertex: face_vertices {
-            // Rotate
-            transformed := rotate_around_x(vertex, mesh.rotation.x);
-            transformed = rotate_around_y(transformed, mesh.rotation.y);
-            transformed = rotate_around_z(transformed, mesh.rotation.z);
+            // Scale
+            transformed := scale_matrix * make_vector4(vertex, 1);
 
             // Translate
             transformed.z += 5;
@@ -120,9 +123,9 @@ update :: () {
 
         // Cull backfaces
         if should_cull_backfaces {
-            v_a := triangle_transformed_vertices[0];
-            v_b := triangle_transformed_vertices[1];
-            v_c := triangle_transformed_vertices[2];
+            v_a := triangle_transformed_vertices[0].xyz;
+            v_b := triangle_transformed_vertices[1].xyz;
+            v_c := triangle_transformed_vertices[2].xyz;
 
             // No need to normalize at this point.
             v_ab := normalize(v_b - v_a);
@@ -152,7 +155,7 @@ update :: () {
         };
         // Project
         for vertex: triangle_transformed_vertices {
-            projected := project_persp(vertex);
+            projected := project_persp(vertex.xyz);
 
             // Scale and translate (why here and not in the Transform phaze above?..)
             projected.x += window_width / 2;
