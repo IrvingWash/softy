@@ -14,19 +14,14 @@ is_running: bool;
 previous_frame_time: int; // Milliseconds
 triangles_to_render: [..]Triangle;
 projection_matrix: Matrix4;
-
-camera: struct {
-    position: Vector3 = .{0,0,0};
-};
+render_mode: Render_Mode;
+should_cull_backfaces: bool = true;
 
 Render_Mode :: enum u8 {
     Wireframe;
     Filled;
     Wireframe_Filled;
 }
-
-render_mode: Render_Mode;
-should_cull_backfaces: bool = true;
 
 main :: () {
     sf := *context.print_style.default_format_struct;
@@ -151,11 +146,11 @@ update :: () {
             // No need to normalize at this point.
             normal := normalize(cross_product(v_ab, v_ac));
 
-            camera_ray := camera.position - v_a;
+            view_point_ray := Vector3.{0,0,0} - v_a;
 
-            normal_and_camera_alignment := dot_product(normal, camera_ray);
+            normal_and_view_point_alignment := dot_product(normal, view_point_ray);
 
-            if normal_and_camera_alignment < 0 {
+            if normal_and_view_point_alignment < 0 {
                 // Don't project and don't store in triangles_to_render
                 continue;
             }
