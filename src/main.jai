@@ -6,8 +6,9 @@
 #import,file "vector.jai";
 #import,file "mesh.jai";
 #import,file "triangle.jai";
+#import,file "matrix.jai";
 
-SIMPLE_MODE :: true;
+SIMPLE_MODE :: false;
 
 is_running: bool;
 previous_frame_time: int; // Milliseconds
@@ -100,6 +101,9 @@ update :: () {
 
     scale_matrix := make_scale_matrix4(mesh.scale);
     translation_matrix := make_translation_matrix4(mesh.translation);
+    x_rotation_matrix := make_rotation_around_x_matrix4(mesh.rotation.x);
+    y_rotation_matrix := make_rotation_around_y_matrix4(mesh.rotation.y);
+    z_rotation_matrix := make_rotation_around_z_matrix4(mesh.rotation.z);
 
     // Make triangles to render
     for face: mesh.faces {
@@ -114,6 +118,11 @@ update :: () {
         for vertex: face_vertices {
             // Scale
             transformed := scale_matrix * make_vector4(vertex, 1);
+
+            // Rotate
+            transformed = x_rotation_matrix * transformed;
+            transformed = y_rotation_matrix * transformed;
+            transformed = z_rotation_matrix * transformed;
 
             // Translate
             transformed = translation_matrix * transformed;
