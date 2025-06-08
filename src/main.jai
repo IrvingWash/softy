@@ -8,7 +8,7 @@
 #import,file "triangle.jai";
 #import,file "matrix.jai";
 
-SIMPLE_MODE :: true;
+SIMPLE_MODE :: false;
 
 is_running: bool;
 previous_frame_time: int; // Milliseconds
@@ -29,6 +29,11 @@ render_mode: Render_Mode;
 should_cull_backfaces: bool = true;
 
 main :: () {
+    sf := *context.print_style.default_format_struct;
+    sf.draw_type_name = true;
+    sf.use_long_form_if_more_than_this_many_members = 0;
+    sf.use_newlines_if_long_form = true;
+
     display_init();
 
     setup();
@@ -53,7 +58,7 @@ setup :: () {
     }
 
     projection_matrix = make_left_handed_perspective_projection_matrix4(
-        fov_angle = 60.0 * PI / 180.0,
+        fov_angle = 80.0 * PI / 180.0,
         aspect_inv = cast(float) window_height / cast(float) window_width,
         z_near = 0.1, // why
         z_far = 100, // why
