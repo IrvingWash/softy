@@ -7,7 +7,7 @@
 #import,file "mesh.jai";
 #import,file "triangle.jai";
 
-SIMPLE_MODE :: false;
+SIMPLE_MODE :: true;
 
 is_running: bool;
 previous_frame_time: int; // Milliseconds
@@ -86,19 +86,20 @@ update :: () {
     }
     previous_frame_time = SDL_GetTicks();
 
+    // Update the entity
+    mesh.scale += 0.002;
+    mesh.rotation += 0.01;
+    mesh.translation += 0.01;
+    mesh.translation.z = 5;
+
+    // Prepare for drawing
     // Ugly
     if triangles_to_render.count != 0 {
         array_reset(*triangles_to_render);
     }
 
-    mesh.scale.x += 0.002;
-    mesh.scale.y += 0.002;
-    mesh.scale.z += 0.002;
-    mesh.rotation.x += 0.01;
-    mesh.rotation.y += 0.01;
-    mesh.rotation.z += 0.01;
-
     scale_matrix := make_scale_matrix4(mesh.scale);
+    translation_matrix := make_translation_matrix4(mesh.translation);
 
     // Make triangles to render
     for face: mesh.faces {
@@ -115,7 +116,7 @@ update :: () {
             transformed := scale_matrix * make_vector4(vertex, 1);
 
             // Translate
-            transformed.z += 5;
+            transformed = translation_matrix * transformed;
 
             // Store to pass to projection phaze
             triangle_transformed_vertices[it_index] = transformed;
