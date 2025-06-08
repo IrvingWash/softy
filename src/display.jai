@@ -195,7 +195,75 @@ draw_triangle_textured :: (
     x2: int, y2: int, u2: float, v2: float,
     texture: []u32
 ) {
-    assert(false, "Not implemented");
+    // @Copy_and_paste
+
+    // Sort vertices
+    if y0 > y1 {
+        y0,y1 = y1,y0;
+        x0,x1 = x1,x0;
+        u0,u1 = u1,u0;
+        v0,v1 = v1,v0;
+    }
+    if y1 > y2 {
+        y1,y2 = y2,y1;
+        x1,x2 = x2,x1;
+        u1,u2 = u2,u1;
+        v1,v2 = v2,v1;
+    }
+    if y0 > y1 {
+        y0,y1 = y1,y0;
+        x0,x1 = x1,x0;
+        u0,u1 = u1,u0;
+        v0,v1 = v1,v1;
+    }
+
+    // Upper part
+    inv_slope1: float = ifx y1 - y0 != 0 {
+        cast(float) (x1 - x0) / abs(cast(float) (y1 - y0));
+    } else 0;
+    inv_slope2: float = ifx y2 - y0 != 0 {
+        cast(float) (x2 - x0) / abs(cast(float) (y2 - y0));
+    } else 0;
+
+    if y1 - y0 != 0 {
+        for y: y0..y1 {
+            x_start: int = xx (x1 + (y - y1) * inv_slope1);
+            x_end: int = xx (x0  + (y - y0) * inv_slope2);
+
+            if x_start > x_end {
+                x_start, x_end = x_end, x_start;
+            }
+
+            for x: x_start..x_end {
+                color := ifx x % 2 == 0 && y % 2 == 0 then 0xFFFF00FF else 0xFF000000;
+                draw_pixel(x, y, xx color);
+            }
+        }
+    }
+
+    // Bottom part
+    inv_slope1 = ifx y2 - y1 != 0 {
+        cast(float) (x2 - x1) / abs(cast(float) (y2 - y1));
+    } else 0;
+    inv_slope2 = ifx y2 - y0 != 0 {
+        cast(float) (x2 - x0) / abs(cast(float) (y2 - y0));
+    } else 0;
+
+    if y2 - y1 != 0 {
+        for y: y1..y2 {
+            x_start: int = xx (x1 + (y - y1) * inv_slope1);
+            x_end: int = xx (x0  + (y - y0) * inv_slope2);
+
+            if x_start > x_end {
+                x_start, x_end = x_end, x_start;
+            }
+
+            for x: x_start..x_end {
+                color := ifx x % 2 == 0 && y % 2 == 0 then 0xFFFF00FF else 0xFF000000;
+                draw_pixel(x, y, xx color);
+            }
+        }
+    }
 }
 
 #scope_file;

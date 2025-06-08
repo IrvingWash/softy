@@ -113,7 +113,7 @@ update :: () {
 
     // Update the entity
     mesh.scale += Vector3.{};
-    mesh.rotation += Vector3.{0.005, 0.005, 0.005};
+    mesh.rotation += Vector3.{0.005, 0, 0};
     mesh.translation += Vector3.{};
     mesh.translation.z = 5;
 
