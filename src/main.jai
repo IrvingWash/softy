@@ -8,8 +8,9 @@
 #import,file "triangle.jai";
 #import,file "matrix.jai";
 #import,file "light.jai";
+#import,file "texture.jai";
 
-SIMPLE_MODE :: false;
+SIMPLE_MODE :: true;
 
 is_running: bool;
 previous_frame_time: int; // Milliseconds
@@ -22,7 +23,9 @@ sun: Light;
 Render_Mode :: enum u8 {
     Wireframe;
     Filled;
+    Textured;
     Wireframe_Filled;
+    Wireframe_Textured;
 }
 
 main :: () {
@@ -69,6 +72,8 @@ setup :: () {
         }),
     };
 
+    mesh_texture = cast,force([]u32) REDBRICK_TEXTURE;
+
     is_running = true;
 }
 
@@ -88,7 +93,11 @@ process_input :: () {
                 case .SDLK_2;
                     render_mode = .Filled;
                 case .SDLK_3;
+                    render_mode = .Textured;
+                case .SDLK_4;
                     render_mode = .Wireframe_Filled;
+                case .SDLK_5;
+                    render_mode = .Wireframe_Textured;
                 case .SDLK_c;
                     should_cull_backfaces = !should_cull_backfaces;
             }
@@ -104,7 +113,7 @@ update :: () {
 
     // Update the entity
     mesh.scale += Vector3.{};
-    mesh.rotation += Vector3.{0.005, 0, 0};
+    mesh.rotation += Vector3.{0.005, 0.005, 0.005};
     mesh.translation += Vector3.{};
     mesh.translation.z = 5;
 
@@ -192,6 +201,7 @@ update :: () {
                 + triangle_transformed_vertices[1].z
                 + triangle_transformed_vertices[2].z
             ) / 3,
+            texture_coordinates = .[face.a_uv, face.b_uv, face.c_uv],
         };
         for vertex: triangle_transformed_vertices {
             projected := project_persp(projection_matrix, vertex);
@@ -237,7 +247,28 @@ render :: () {
         }
 
         if render_mode == {
+            case .Textured; #through;
+            case .Wireframe_Textured;
+                draw_triangle_textured(
+                    xx triangle.points[0].x,
+                    xx triangle.points[0].y,
+                    triangle.texture_coordinates[0].u,
+                    triangle.texture_coordinates[0].v,
+                    xx triangle.points[1].x,
+                    xx triangle.points[1].y,
+                    triangle.texture_coordinates[1].u,
+                    triangle.texture_coordinates[1].v,
+                    xx triangle.points[2].x,
+                    xx triangle.points[2].y,
+                    triangle.texture_coordinates[2].u,
+                    triangle.texture_coordinates[2].v,
+                    mesh_texture,
+                );
+        }
+
+        if render_mode == {
             case .Wireframe; #through;
+            case .Wireframe_Textured; #through;
             case .Wireframe_Filled;
                 draw_triangle(
                     xx triangle.points[0].x,

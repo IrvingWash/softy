@@ -189,6 +189,15 @@ draw_triangle_filled :: (x0: int, y0: int, x1: int, y1: int, x2: int, y2: int, c
     draw_flat_top(x1, y1, xx mx, my, x2, y2, color);
 }
 
+draw_triangle_textured :: (
+    x0: int, y0: int, u0: float, v0: float,
+    x1: int, y1: int, u1: float, v1: float,
+    x2: int, y2: int, u2: float, v2: float,
+    texture: []u32
+) {
+    assert(false, "Not implemented");
+}
+
 #scope_file;
 
 draw_flat_bottom :: (x0: int, y0: int, x1: int, y1: int, x2: int, y2: int, color: u32) {

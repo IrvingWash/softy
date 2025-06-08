@@ -83,23 +83,23 @@ load_cube_mesh_data :: () {
         mesh.faces,
         ..Face.[
             // Front
-            .{1, 2, 3, 0xFFFFFFFF},
-            .{1, 3, 4, 0xFFFFFFFF},
+            .{a = 1, b = 2, c = 3, color = 0xFFFFFFFF, a_uv = .{0, 0}, b_uv = .{0, 1}, c_uv = .{1, 1}},
+            .{a = 1, b = 3, c = 4, color = 0xFFFFFFFF, a_uv = .{0, 0}, b_uv = .{1, 1}, c_uv = .{1, 0}},
             // Right
-            .{4, 3, 5, 0xFFFFFFFF},
-            .{4, 5, 6, 0xFFFFFFFF},
+            .{a = 4, b = 3, c = 5, color = 0xFFFFFFFF, a_uv = .{0, 0}, b_uv = .{0, 1}, c_uv = .{1, 1}},
+            .{a = 4, b = 5, c = 6, color = 0xFFFFFFFF, a_uv = .{0, 0}, b_uv = .{1, 1}, c_uv = .{1, 0}},
             // Back
-            .{6, 5, 7, 0xFFFFFFFF},
-            .{6, 7, 8, 0xFFFFFFFF},
+            .{a = 6, b = 5, c = 7, color = 0xFFFFFFFF, a_uv = .{0, 0}, b_uv = .{0, 1}, c_uv = .{1, 1}},
+            .{a = 6, b = 7, c = 8, color = 0xFFFFFFFF, a_uv = .{0, 0}, b_uv = .{1, 1}, c_uv = .{1, 0}},
             // Left
-            .{8, 7, 2, 0xFFFFFFFF},
-            .{8, 2, 1, 0xFFFFFFFF},
+            .{a = 8, b = 7, c = 2, color = 0xFFFFFFFF, a_uv = .{0, 0}, b_uv = .{0, 1}, c_uv = .{1, 1}},
+            .{a = 8, b = 2, c = 1, color = 0xFFFFFFFF, a_uv = .{0, 0}, b_uv = .{1, 1}, c_uv = .{1, 0}},
             // Top
-            .{2, 7, 5, 0xFFFFFFFF},
-            .{2, 5, 3, 0xFFFFFFFF},
+            .{a = 2, b = 7, c = 5, color = 0xFFFFFFFF, a_uv = .{0, 0}, b_uv = .{0, 1}, c_uv = .{1, 1}},
+            .{a = 2, b = 5, c = 3, color = 0xFFFFFFFF, a_uv = .{0, 0}, b_uv = .{1, 1}, c_uv = .{1, 0}},
             // Bottom
-            .{6, 8, 1, 0xFFFFFFFF},
-            .{6, 1, 4, 0xFFFFFFFF},
+            .{a = 6, b = 8, c = 1, color = 0xFFFFFFFF, a_uv = .{0, 0}, b_uv = .{0, 1}, c_uv = .{1, 1}},
+            .{a = 6, b = 1, c = 4, color = 0xFFFFFFFF, a_uv = .{0, 0}, b_uv = .{1, 1}, c_uv = .{1, 0}},
         ]
     );
 }
