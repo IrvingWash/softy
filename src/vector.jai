@@ -33,6 +33,23 @@ rotate_around_z :: (v: Vector3, angle: float) -> Vector3 {
     };
 }
 
+// Returns alpha, beta and gamma inside Vector3 using it just as a container.
+barycentric_weights :: (a: Vector2, b: Vector2, c: Vector2, p: Vector2) -> Vector3 {
+    ac := c - a;
+    ab := b - a;
+    pc := c - p;
+    pb := b - p;
+    ap := p - a;
+
+    acab_cross_product_length := ac.x * ab.y - ac.y * ab.x;
+
+    alpha := (pc.x * pb.y - pc.y  * pb.x) / acab_cross_product_length;
+    beta := (ac.x * ap.y - ac.y * ap.x) / acab_cross_product_length;
+    gamma := 1 - alpha - beta;
+
+    return .{alpha, beta, gamma};
+}
+
 operator + :: (a: Vector3, b: $T) -> Vector3 {
     return .{
         a.x + b,
