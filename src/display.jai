@@ -1,6 +1,7 @@
 #import "Basic";
 #import "SDL";
 #import "Math";
+#import,file "vector.jai";
 
 #scope_export;
 
@@ -217,6 +218,10 @@ draw_triangle_textured :: (
         v0,v1 = v1,v1;
     }
 
+    a := Vector2.{xx x0, xx y0};
+    b := Vector2.{xx x1, xx y1};
+    c := Vector2.{xx x2, xx y2};
+
     // Upper part
     inv_slope1: float = ifx y1 - y0 != 0 {
         cast(float) (x1 - x0) / abs(cast(float) (y1 - y0));
@@ -235,8 +240,14 @@ draw_triangle_textured :: (
             }
 
             for x: x_start..x_end {
-                color := ifx x % 2 == 0 && y % 2 == 0 then 0xFFFF00FF else 0xFF000000;
-                draw_pixel(x, y, xx color);
+                draw_texel(
+                    x, y,
+                    a, b, c,
+                    u0, v0,
+                    u1, v1,
+                    u2, v2,
+                    texture
+                );
             }
         }
     }
@@ -259,8 +270,14 @@ draw_triangle_textured :: (
             }
 
             for x: x_start..x_end {
-                color := ifx x % 2 == 0 && y % 2 == 0 then 0xFFFF00FF else 0xFF000000;
-                draw_pixel(x, y, xx color);
+                draw_texel(
+                    x, y,
+                    a, b, c,
+                    u0, v0,
+                    u1, v1,
+                    u2, v2,
+                    texture
+                );
             }
         }
     }
@@ -340,6 +357,27 @@ render_color_buffer :: () {
         color_buffer_texture,
         null, null
     );
+}
+
+draw_texel :: (
+    x: int, y: int,
+    a: Vector2, b: Vector2, c: Vector2,
+    u0: float, v0: float,
+    u1: float, v1: float,
+    u2: float, v2: float,
+    texture: []u32
+) {
+    alpha, beta, gamma := barycentric_weights(a, b, c, .{xx x, xx y});
+
+    interpolated_u := u0 * alpha + u1 * beta + u2 * gamma;
+    interpolated_v := v0 * alpha + v1 * beta + v2 * gamma;
+
+    texture_x: int = xx abs((interpolated_u * 64));
+    texture_y: int = xx abs((interpolated_v * 64));
+
+    color := texture[texture_y * 64 + texture_x];
+
+    draw_pixel(x, y, color);
 }
 
 round :: (v: $T) -> int {
