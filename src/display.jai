@@ -191,9 +191,9 @@ draw_triangle_filled :: (x0: int, y0: int, x1: int, y1: int, x2: int, y2: int, c
 }
 
 draw_triangle_textured :: (
-    x0: int, y0: int, u0: float, v0: float,
-    x1: int, y1: int, u1: float, v1: float,
-    x2: int, y2: int, u2: float, v2: float,
+    x0: int, y0: int, z0: float, w0: float, u0: float, v0: float,
+    x1: int, y1: int, z1: float, w1: float, u1: float, v1: float,
+    x2: int, y2: int, z2: float, w2: float, u2: float, v2: float,
     texture: []u32
 ) {
     // @Copy_and_paste
@@ -202,25 +202,31 @@ draw_triangle_textured :: (
     if y0 > y1 {
         y0,y1 = y1,y0;
         x0,x1 = x1,x0;
+        z0,z1 = z1,z0;
+        w0,w1 = w1,w0;
         u0,u1 = u1,u0;
         v0,v1 = v1,v0;
     }
     if y1 > y2 {
         y1,y2 = y2,y1;
         x1,x2 = x2,x1;
+        z1,z2 = z2,z1;
+        w1,w2 = w2,w1;
         u1,u2 = u2,u1;
         v1,v2 = v2,v1;
     }
     if y0 > y1 {
         y0,y1 = y1,y0;
         x0,x1 = x1,x0;
+        z0,z1 = z1,z0;
+        w0,w1 = w1,w0;
         u0,u1 = u1,u0;
         v0,v1 = v1,v1;
     }
 
-    a := Vector2.{xx x0, xx y0};
-    b := Vector2.{xx x1, xx y1};
-    c := Vector2.{xx x2, xx y2};
+    a := Vector4.{xx x0, xx y0, z0, w0};
+    b := Vector4.{xx x1, xx y1, z1, w1};
+    c := Vector4.{xx x2, xx y2, z2, w2};
 
     // Upper part
     inv_slope1: float = ifx y1 - y0 != 0 {
@@ -361,22 +367,24 @@ render_color_buffer :: () {
 
 draw_texel :: (
     x: int, y: int,
-    a: Vector2, b: Vector2, c: Vector2,
+    a: Vector4, b: Vector4, c: Vector4,
     u0: float, v0: float,
     u1: float, v1: float,
     u2: float, v2: float,
     texture: []u32
 ) {
-    alpha, beta, gamma := barycentric_weights(a, b, c, .{xx x, xx y});
+    alpha, beta, gamma := barycentric_weights(a.xy, b.xy, c.xy, .{xx x, xx y});
 
-    interpolated_u := u0 * alpha + u1 * beta + u2 * gamma;
-    interpolated_v := v0 * alpha + v1 * beta + v2 * gamma;
+    interpolated_reciprocal_w := 1 / a.w * alpha + 1 / b.w * beta + 1 / c.w * gamma;
+    interpolated_u := u0 / a.w * alpha + u1 / b.w * beta + u2 / c.w * gamma;
+    interpolated_v := v0 / a.w * alpha + v1 / b.w * beta + v2 / c.w * gamma;
+    interpolated_u /= interpolated_reciprocal_w;
+    interpolated_v /= interpolated_reciprocal_w;
 
     texture_x: int = xx abs((interpolated_u * 64));
     texture_y: int = xx abs((interpolated_v * 64));
 
     color := texture[texture_y * 64 + texture_x];
-
     draw_pixel(x, y, color);
 }
 

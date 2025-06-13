@@ -219,7 +219,7 @@ update :: () {
             projected.y += window_height / 2.0;
 
             // Store finalized vertices that will be rendered
-            processed_triangle.points[it_index] = projected.xy;
+            processed_triangle.points[it_index] = projected;
         }
 
         array_add(*triangles_to_render, processed_triangle);
@@ -252,14 +252,20 @@ render :: () {
                 draw_triangle_textured(
                     xx triangle.points[0].x,
                     xx triangle.points[0].y,
+                    xx triangle.points[0].z,
+                    xx triangle.points[0].w,
                     triangle.texture_coordinates[0].u,
                     triangle.texture_coordinates[0].v,
                     xx triangle.points[1].x,
                     xx triangle.points[1].y,
+                    xx triangle.points[1].z,
+                    xx triangle.points[1].w,
                     triangle.texture_coordinates[1].u,
                     triangle.texture_coordinates[1].v,
                     xx triangle.points[2].x,
                     xx triangle.points[2].y,
+                    xx triangle.points[2].z,
+                    xx triangle.points[2].w,
                     triangle.texture_coordinates[2].u,
                     triangle.texture_coordinates[2].v,
                     mesh_texture,
@@ -277,7 +283,7 @@ render :: () {
                     xx triangle.points[1].y,
                     xx triangle.points[2].x,
                     xx triangle.points[2].y,
-                    0xFF333333,
+                    0xFFEEEEEE,
                 );
         }
     }

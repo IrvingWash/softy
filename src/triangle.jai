@@ -14,7 +14,7 @@ Face :: struct {
 
 // Stores actual vectors
 Triangle :: struct {
-    points: [3]Vector2;
+    points: [3]Vector4;
     texture_coordinates: [3]Texture_Coordinates;
     color: u32 = 0xFFFFFFFF;
     average_depth: float;
