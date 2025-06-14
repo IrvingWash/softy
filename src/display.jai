@@ -2,6 +2,7 @@
 #import "SDL";
 #import "Math";
 #import,file "vector.jai";
+#import,file "texture.jai";
 
 #scope_export;
 
@@ -382,10 +383,10 @@ draw_texel :: (
     interpolated_u /= interpolated_reciprocal_w;
     interpolated_v /= interpolated_reciprocal_w;
 
-    texture_x: int = xx abs((interpolated_u * 64));
-    texture_y: int = xx abs((interpolated_v * 64));
+    texture_x: int = xx abs((interpolated_u * texture_width)) % texture_width;
+    texture_y: int = xx abs((interpolated_v * texture_height)) % texture_height;
 
-    color := texture[texture_y * 64 + texture_x];
+    color := texture[texture_y * texture_width + texture_x];
     draw_pixel(x, y, color);
 }
 

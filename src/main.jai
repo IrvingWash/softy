@@ -11,7 +11,7 @@
 #import,file "light.jai";
 #import,file "texture.jai";
 
-SIMPLE_MODE :: true;
+SIMPLE_MODE :: false;
 
 is_running: bool;
 previous_frame_time: int; // Milliseconds
@@ -43,7 +43,7 @@ main :: () {
         process_input();
         update();
         render();
-        memory_visualizer_per_frame_update();
+        // memory_visualizer_per_frame_update();
     }
 
     array_free(triangles_to_render);
@@ -55,9 +55,9 @@ main :: () {
 setup :: () {
     #if SIMPLE_MODE {
         load_cube_mesh_data();
-        load_texture("assets/cube.png");
     } else {
-        load_obj_data("./assets/f22.obj");
+        load_obj_data("./assets/cube.obj");
+        load_texture("assets/cube.png");
     }
 
     projection_matrix = make_left_handed_perspective_projection_matrix4(
@@ -114,7 +114,7 @@ update :: () {
 
     // Update the entity
     mesh.scale += Vector3.{};
-    mesh.rotation += Vector3.{0.01, 0.01, 0.01};
+    mesh.rotation -= Vector3.{0.0, 0.01, 0.0};
     mesh.translation += Vector3.{};
     mesh.translation.z = 5;
 
@@ -138,9 +138,9 @@ update :: () {
     // Make triangles to render
     for face: mesh.faces {
         face_vertices: [3]Vector3 = .[
-            mesh.vertices[face.a - 1],
-            mesh.vertices[face.b - 1],
-            mesh.vertices[face.c - 1],
+            mesh.vertices[face.a],
+            mesh.vertices[face.b],
+            mesh.vertices[face.c],
         ];
 
         // Transform

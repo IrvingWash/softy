@@ -3,6 +3,7 @@
 #import "Text_File_Handler";
 #import "String";
 #import,file "triangle.jai";
+#import,file "texture.jai";
 
 Mesh :: struct {
     // Vertex buffer
@@ -31,6 +32,9 @@ load_obj_data :: (path: string) {
     }
     defer array_free(contents);
 
+    texture_coordinates: [..]Texture_Coordinates;
+    defer array_free(texture_coordinates);
+
     for line: contents {
         if starts_with(line, "v ") {
             vertex: Vector3;
@@ -42,6 +46,17 @@ load_obj_data :: (path: string) {
             }
 
             array_add(*mesh.vertices, vertex);
+        } else if starts_with(line, "vt") {
+            coord: Texture_Coordinates;
+
+            ok := scan2(line, "vt % %", *coord.u, *coord.v);
+            if !ok {
+                print("Failed to parse texture coordinates %\n", line, to_standard_error = true);
+
+                return;
+            }
+
+            array_add(*texture_coordinates, coord);
         } else if starts_with(line, "f") {
             face: Face;
             ti: [3]int;
@@ -58,6 +73,13 @@ load_obj_data :: (path: string) {
 
                 return;
             }
+
+            face.a -= 1;
+            face.b -= 1;
+            face.c -= 1;
+            face.a_uv = texture_coordinates[ti[0] - 1];
+            face.b_uv = texture_coordinates[ti[1] - 1];
+            face.c_uv = texture_coordinates[ti[2] - 1];
 
             array_add(*mesh.faces, face);
         }

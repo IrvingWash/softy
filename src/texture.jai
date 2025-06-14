@@ -12,7 +12,11 @@ texture_height: s32 = 64;
 mesh_texture: []u32;
 
 load_texture :: (path: string) {
-    mesh_texture = load_image(path).data;
+    image := load_image(path);
+
+    mesh_texture = image.data;
+    texture_width = image.width;
+    texture_height = image.height;
 }
 
 destroy_texture :: () {
