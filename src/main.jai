@@ -47,6 +47,7 @@ main :: () {
     }
 
     array_free(triangles_to_render);
+    destroy_texture();
     destroy_mesh();
     display_destroy();
 }

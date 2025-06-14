@@ -1,3 +1,4 @@
+#import "Basic";
 #import,file "image.jai";
 
 Texture_Coordinates :: struct {
@@ -12,4 +13,8 @@ mesh_texture: []u32;
 
 load_texture :: (path: string) {
     mesh_texture = load_image(path).data;
+}
+
+destroy_texture :: () {
+    array_free(mesh_texture);
 }
