@@ -14,6 +14,7 @@ FRAME_TARGET_TIME :: M_IN_S / FPS;
 
 // Didn't found this in the bindings
 SDL_PIXELFORMAT_ARGB8888 :: 372645892;
+SDL_PIXELFORMAT_RGBA32 :: 376840196;
 
 #scope_export;
 
@@ -65,7 +66,7 @@ display_init :: () {
     // Texture
     color_buffer_texture = SDL_CreateTexture(
         renderer,
-        SDL_PIXELFORMAT_ARGB8888,
+        SDL_PIXELFORMAT_RGBA32,
         xx SDL_TextureAccess.STREAMING,
         window_width,
         window_height

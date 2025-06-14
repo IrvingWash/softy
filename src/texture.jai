@@ -11,6 +11,5 @@ texture_height: s32 = 64;
 mesh_texture: []u32;
 
 load_texture :: (path: string) {
-    // @Todo the texture is flipped vertically and horizontally and has wrong color (RGBA instead of ARGB)
     mesh_texture = load_image(path).data;
 }
