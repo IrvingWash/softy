@@ -2,6 +2,7 @@
 #import "Math";
 #import "SDL";
 #import "Sort";
+#import,file "image.jai";
 #import,file "display.jai";
 #import,file "vector.jai";
 #import,file "mesh.jai";
@@ -53,6 +54,7 @@ main :: () {
 setup :: () {
     #if SIMPLE_MODE {
         load_cube_mesh_data();
+        load_texture("assets/cube.png");
     } else {
         load_obj_data("./assets/f22.obj");
     }
@@ -71,8 +73,6 @@ setup :: () {
             z = 1,
         }),
     };
-
-    mesh_texture = cast,force([]u32) REDBRICK_TEXTURE;
 
     is_running = true;
 }
@@ -113,7 +113,7 @@ update :: () {
 
     // Update the entity
     mesh.scale += Vector3.{};
-    mesh.rotation += Vector3.{0.01, 0.01, 0.01};
+    // mesh.rotation += Vector3.{0.01, 0.01, 0.01};
     mesh.translation += Vector3.{};
     mesh.translation.z = 5;
 
@@ -210,7 +210,7 @@ update :: () {
             projected.x *= window_width / 2.0;
             projected.y *= window_height / 2.0;
 
-            // Invert ys to account for flipped y in our screen
+            // Invert to account for flipped y and x in our screen
             projected.x *= -1;
             projected.y *= -1;
 
