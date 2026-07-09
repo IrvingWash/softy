@@ -120,6 +120,8 @@ init_window :: () {
     );
     assert(window != null, "Failed to create SDL window");
 
+    SDL_SetWindowFullscreen(window, xx SDL_WINDOW_FULLSCREEN);
+
     renderer = SDL_CreateRenderer(window, -1, 0);
     assert(renderer != null, "Failed to create SDL renderer");
 }
