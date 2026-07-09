@@ -72,11 +72,40 @@ process_input :: () {
 update :: () {}
 
 render :: () {
-    clear_color_buffer(0xFFFFFF00);
+    clear_color_buffer(0xFF000000);
+
+    draw_grid(0xFF777777, 10);
+
+    draw_rectangle(300, 200, 300, 150, 0xFFFF0000);
 
     render_color_buffer();
 
     SDL_RenderPresent(renderer);
+}
+
+draw_rectangle :: (x: u32, y: u32, width: u32, height: u32, color: u32) {
+    for w: 0..width - 1 {
+        for h: 0..height - 1 {
+            cx := x + w;
+            cy := y + h;
+
+            draw_pixel(cx, cy, color);
+        }
+    }
+}
+
+draw_grid :: (grid_color: u32, grid_size: s32) {
+    for y: 0..window_height - 1 {
+        for x: 0..window_width - 1 {
+            if x % grid_size == 0 || y % grid_size == 0 {
+                draw_pixel(xx x, xx y, grid_color);
+            }
+        }
+    }
+}
+
+draw_pixel :: (x: u32, y: u32, color: u32) {
+    color_buffer[y * xx window_width + x] = color;
 }
 
 render_color_buffer :: () {
