@@ -8,8 +8,8 @@
 #import "SDL";
 SDL_PIXELFORMAT_ARGB8888 :: 0x16362004;
 
-WINDOW_WIDTH  :: 800;
-WINDOW_HEIGHT :: 600;
+window_width:  s32 = 800;
+window_height: s32 = 600;
 
 window:   *SDL_Window;
 renderer: *SDL_Renderer;
@@ -36,14 +36,14 @@ main :: () {
 }
 
 setup :: () {
-    array_resize(*color_buffer, WINDOW_WIDTH * WINDOW_HEIGHT);
+    array_resize(*color_buffer, window_width * window_height);
 
     color_buffer_texture = SDL_CreateTexture(
         renderer,
         SDL_PIXELFORMAT_ARGB8888,
         xx SDL_TextureAccess.STREAMING,
-        WINDOW_WIDTH,
-        WINDOW_HEIGHT,
+        window_width,
+        window_height,
     );
 
     is_running = true;
@@ -84,7 +84,7 @@ render_color_buffer :: () {
         color_buffer_texture,
         null,
         color_buffer.data,
-        WINDOW_WIDTH * size_of(u32),
+        window_width * size_of(u32),
     );
 
     SDL_RenderCopy(
@@ -105,12 +105,17 @@ init_window :: () {
     result := SDL_Init(SDL_INIT_VIDEO);
     assert(result == 0, "Failed to initialize SDL");
 
+    display_mode: SDL_DisplayMode;
+    SDL_GetCurrentDisplayMode(0, *display_mode);
+    window_width  = display_mode.w;
+    window_height = display_mode.h;
+
     window = SDL_CreateWindow(
         "Softy",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
-        WINDOW_WIDTH,
-        WINDOW_HEIGHT,
+        xx window_width,
+        xx window_height,
         SDL_WINDOW_BORDERLESS,
     );
     assert(window != null, "Failed to create SDL window");
