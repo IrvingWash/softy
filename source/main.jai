@@ -7,10 +7,15 @@
 
 #import "SDL";
 
+WINDOW_WIDTH  :: 800;
+WINDOW_HEIGHT :: 600;
+
 window:   *SDL_Window;
 renderer: *SDL_Renderer;
 
 is_running: bool;
+
+color_buffer: [..]u32; // ARGB
 
 main :: () {
     defer report_memory_leaks();
@@ -18,9 +23,8 @@ main :: () {
     window, renderer = init_window();
     defer destroy_window();
 
-    is_running = true;
-
     setup();
+    defer destroy();
 
     while is_running {
         process_input();
@@ -29,7 +33,15 @@ main :: () {
     }
 }
 
-setup :: () {}
+setup :: () {
+    array_resize(*color_buffer, WINDOW_WIDTH * WINDOW_HEIGHT);
+
+    is_running = true;
+}
+
+destroy :: () {
+    array_free(color_buffer);
+}
 
 process_input :: () {
     event: SDL_Event;
@@ -62,8 +74,8 @@ init_window :: () -> *SDL_Window, *SDL_Renderer {
         "Softy",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
-        800,
-        600,
+        WINDOW_WIDTH,
+        WINDOW_HEIGHT,
         SDL_WINDOW_BORDERLESS,
     );
     assert(window != null, "Failed to create SDL window");
