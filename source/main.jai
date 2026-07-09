@@ -6,6 +6,7 @@
 );
 
 #import "SDL";
+SDL_PIXELFORMAT_ARGB8888 :: 0x16362004;
 
 WINDOW_WIDTH  :: 800;
 WINDOW_HEIGHT :: 600;
@@ -16,11 +17,12 @@ renderer: *SDL_Renderer;
 is_running: bool;
 
 color_buffer: [..]u32; // ARGB
+color_buffer_texture: *SDL_Texture;
 
 main :: () {
     defer report_memory_leaks();
 
-    window, renderer = init_window();
+    init_window();
     defer destroy_window();
 
     setup();
@@ -36,10 +38,20 @@ main :: () {
 setup :: () {
     array_resize(*color_buffer, WINDOW_WIDTH * WINDOW_HEIGHT);
 
+    color_buffer_texture = SDL_CreateTexture(
+        renderer,
+        SDL_PIXELFORMAT_ARGB8888,
+        xx SDL_TextureAccess.STREAMING,
+        WINDOW_WIDTH,
+        WINDOW_HEIGHT,
+    );
+
     is_running = true;
 }
 
 destroy :: () {
+    SDL_DestroyTexture(color_buffer_texture);
+
     array_free(color_buffer);
 }
 
@@ -60,17 +72,40 @@ process_input :: () {
 update :: () {}
 
 render :: () {
-    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-    SDL_RenderClear(renderer);
+    clear_color_buffer(0xFFFFFF00);
+
+    render_color_buffer();
 
     SDL_RenderPresent(renderer);
 }
 
-init_window :: () -> *SDL_Window, *SDL_Renderer {
+render_color_buffer :: () {
+    SDL_UpdateTexture(
+        color_buffer_texture,
+        null,
+        color_buffer.data,
+        WINDOW_WIDTH * size_of(u32),
+    );
+
+    SDL_RenderCopy(
+        renderer,
+        color_buffer_texture,
+        null,
+        null,
+    );
+}
+
+clear_color_buffer :: (clear_color: u32) {
+    for *color: color_buffer {
+        color.* = clear_color;
+    }
+}
+
+init_window :: () {
     result := SDL_Init(SDL_INIT_VIDEO);
     assert(result == 0, "Failed to initialize SDL");
 
-    window := SDL_CreateWindow(
+    window = SDL_CreateWindow(
         "Softy",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
@@ -80,10 +115,8 @@ init_window :: () -> *SDL_Window, *SDL_Renderer {
     );
     assert(window != null, "Failed to create SDL window");
 
-    renderer := SDL_CreateRenderer(window, -1, 0);
+    renderer = SDL_CreateRenderer(window, -1, 0);
     assert(renderer != null, "Failed to create SDL renderer");
-
-    return window, renderer;
 }
 
 destroy_window :: () {
