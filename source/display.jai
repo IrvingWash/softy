@@ -80,7 +80,6 @@ project_ortho :: (point_3d: Vector.Vector3, fov_factor := 60) -> Vector.Vector2 
 
 
 
-
 #scope_file
 
 init_window :: () {
