@@ -41,7 +41,7 @@ finish_drawing :: () {
     SDL_RenderPresent(renderer);
 }
 
-draw_rectangle :: (x: u32, y: u32, width: u32, height: u32, color: u32) {
+draw_rectangle :: (x: s32, y: s32, width: s32, height: s32, color: u32) {
     for w: 0..width - 1 {
         for h: 0..height - 1 {
             cx := x + w;
@@ -62,9 +62,22 @@ draw_grid :: (grid_color: u32, grid_size: s32) {
     }
 }
 
-draw_pixel :: (x: u32, y: u32, color: u32) {
-    color_buffer[y * xx window_width + x] = color;
+draw_pixel :: (x: s32, y: s32, color: u32) {
+    if (
+        x >= 0 && x < window_width
+        && y >= 0 && y < window_height
+    ) {
+        color_buffer[y * xx window_width + x] = color;
+    }
 }
+
+project_ortho :: (point_3d: Vector.Vector3, fov_factor := 60) -> Vector.Vector2 {
+    return Vector.Vector2.{
+        x = point_3d.x * fov_factor,
+        y = point_3d.y * fov_factor,
+    };
+}
+
 
 
 
@@ -125,3 +138,4 @@ clear_color_buffer :: (clear_color: u32) {
 
 #import "Basic";
 #import "SDL";
+Vector :: #import,file "vector.jai";

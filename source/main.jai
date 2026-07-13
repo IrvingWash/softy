@@ -13,6 +13,7 @@ Vector  :: #import,file "vector.jai";
 is_running: bool;
 
 cube_points: [9 * 9 * 9]Vector.Vector3;
+projected_cube_points: [9 * 9 * 9]Vector.Vector2;
 
 main :: () {
     defer report_memory_leaks();
@@ -74,14 +75,26 @@ process_input :: () {
     }
 }
 
-update :: () {}
+update :: () {
+    for cube_point: cube_points {
+        projected_cube_points[it_index] = Display.project_ortho(cube_point, 128);
+    }
+}
 
 render :: () {
     Display.start_drawing();
 
-    Display.draw_grid(0xFF777777, 10);
+    Display.draw_grid(0xFF333333, 10);
 
-    Display.draw_rectangle(300, 200, 300, 150, 0xFFFF0000);
+    for projected_cube_points {
+        Display.draw_rectangle(
+            xx (it.x + Display.window_width / 2),
+            xx (it.y + Display.window_height / 2),
+            4,
+            4,
+            0xFFFFFF,
+        );
+    }
 
     Display.finish_drawing();
 }
