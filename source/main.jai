@@ -15,6 +15,8 @@ is_running: bool;
 cube_points: [9 * 9 * 9]Vector.Vector3;
 projected_cube_points: [9 * 9 * 9]Vector.Vector2;
 
+camera_position := Vector.Vector3.{ 0, 0, -3 };
+
 main :: () {
     defer report_memory_leaks();
 
@@ -77,7 +79,14 @@ process_input :: () {
 
 update :: () {
     for cube_point: cube_points {
-        projected_cube_points[it_index] = Display.project_ortho(cube_point, 128);
+        projected_cube_points[it_index] = Display.project_perspective(
+            Vector.Vector3.{
+                cube_point.x - camera_position.x,
+                cube_point.y - camera_position.y,
+                cube_point.z - camera_position.z,
+            },
+            640,
+        );
     }
 }
 
@@ -92,7 +101,7 @@ render :: () {
             xx (it.y + Display.window_height / 2),
             4,
             4,
-            0xFFFFFF,
+            0xFFFFFF00,
         );
     }
 

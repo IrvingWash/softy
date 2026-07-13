@@ -78,6 +78,13 @@ project_ortho :: (point_3d: Vector.Vector3, fov_factor := 60) -> Vector.Vector2 
     };
 }
 
+project_perspective :: (point: Vector.Vector3, fov_factor := 60) -> Vector.Vector2 {
+    return Vector.Vector2.{
+        x = (point.x * fov_factor) / point.z,
+        y = (point.y * fov_factor) / point.z,
+    };
+}
+
 
 
 #scope_file
