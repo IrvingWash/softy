@@ -78,6 +78,7 @@ process_input :: () {
 }
 
 update :: () {
+    // Project the cube points
     for cube_point: cube_points {
         projected_cube_points[it_index] = project_perspective(
             Vector.Vector3.{
@@ -95,6 +96,7 @@ render :: () {
 
     Display.draw_grid(0xFF333333, 10);
 
+    // Draw (projected) cube points
     for projected_cube_points {
         Display.draw_rectangle(
             xx (it.x + Display.window_width / 2),
