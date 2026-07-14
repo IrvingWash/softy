@@ -71,20 +71,6 @@ draw_pixel :: (x: s32, y: s32, color: u32) {
     }
 }
 
-project_ortho :: (point_3d: Vector.Vector3, fov_factor := 60) -> Vector.Vector2 {
-    return Vector.Vector2.{
-        x = point_3d.x * fov_factor,
-        y = point_3d.y * fov_factor,
-    };
-}
-
-project_perspective :: (point: Vector.Vector3, fov_factor := 60) -> Vector.Vector2 {
-    return Vector.Vector2.{
-        x = (point.x * fov_factor) / point.z,
-        y = (point.y * fov_factor) / point.z,
-    };
-}
-
 
 
 #scope_file

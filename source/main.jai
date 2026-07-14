@@ -79,7 +79,7 @@ process_input :: () {
 
 update :: () {
     for cube_point: cube_points {
-        projected_cube_points[it_index] = Display.project_perspective(
+        projected_cube_points[it_index] = project_perspective(
             Vector.Vector3.{
                 cube_point.x - camera_position.x,
                 cube_point.y - camera_position.y,
@@ -106,6 +106,20 @@ render :: () {
     }
 
     Display.finish_drawing();
+}
+
+project_ortho :: (point_3d: Vector.Vector3, fov_factor := 60) -> Vector.Vector2 {
+    return Vector.Vector2.{
+        x = point_3d.x * fov_factor,
+        y = point_3d.y * fov_factor,
+    };
+}
+
+project_perspective :: (point: Vector.Vector3, fov_factor := 60) -> Vector.Vector2 {
+    return Vector.Vector2.{
+        x = (point.x * fov_factor) / point.z,
+        y = (point.y * fov_factor) / point.z,
+    };
 }
 
 setup_formatting :: () {
