@@ -7,7 +7,7 @@ Because as far as the objects goes from the viewpoint, the more warped it gets, 
 
 To achieve that we use the perspective projection, which is very simple.
 
-== The formulae
+== The formula
 Perspective divide:
 $
 P' = vec(P_x/P_z, P_y/P_z)
