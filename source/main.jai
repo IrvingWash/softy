@@ -10,12 +10,23 @@ Vector  :: #import,file "vector.jai";
 
 #import "SDL";
 
+Cube :: struct {
+    point_positions: [9 * 9 * 9]Vector.Vector3;
+
+    rotation: Vector.Vector3;
+
+    projected_point_positions: [9 * 9 * 9]Vector.Vector2;
+}
+
+Camera :: struct {
+    position: Vector.Vector3 = { 0, 0, -3 };
+    fov:      int            = 640;
+}
+
+cube:   Cube;
+camera: Camera;
+
 is_running: bool;
-
-cube_points: [9 * 9 * 9]Vector.Vector3;
-projected_cube_points: [9 * 9 * 9]Vector.Vector2;
-
-camera_position := Vector.Vector3.{ 0, 0, -3 };
 
 main :: () {
     defer report_memory_leaks();
@@ -52,7 +63,7 @@ setup :: () {
                     defer z += 0.25;
                     defer cursor += 1;
 
-                    cube_points[cursor] = { x, y, z };
+                    cube.point_positions[cursor] = { x, y, z };
                 }
             }
         }
@@ -78,15 +89,21 @@ process_input :: () {
 }
 
 update :: () {
+    cube.rotation.x += 0.01;
+    cube.rotation.y += 0.01;
+    cube.rotation.z += 0.01;
+
     // Project the cube points
-    for cube_point: cube_points {
-        projected_cube_points[it_index] = project_perspective(
-            Vector.Vector3.{
-                cube_point.x - camera_position.x,
-                cube_point.y - camera_position.y,
-                cube_point.z - camera_position.z,
-            },
-            640,
+    for point_position: cube.point_positions {
+        transformed_point := Vector.rotate_around_x(point_position, cube.rotation.x);
+        transformed_point = Vector.rotate_around_y(transformed_point, cube.rotation.y);
+        transformed_point = Vector.rotate_around_z(transformed_point, cube.rotation.z);
+
+        transformed_point.z -= camera.position.z;
+
+        cube.projected_point_positions[it_index] = project_perspective(
+            transformed_point,
+            camera.fov,
         );
     }
 }
@@ -97,7 +114,7 @@ render :: () {
     Display.draw_grid(0xFF333333, 10);
 
     // Draw (projected) cube points
-    for projected_cube_points {
+    for cube.projected_point_positions {
         Display.draw_rectangle(
             xx (it.x + Display.window_width / 2),
             xx (it.y + Display.window_height / 2),
