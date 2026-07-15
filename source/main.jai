@@ -5,32 +5,28 @@
     TEMP_ALLOCATOR_OVERWRITE_MEMORY = DEBUG,
 );
 
-Display :: #import,file "display.jai";
-Vector  :: #import,file "vector.jai";
+Display  :: #import,file "display.jai";
+Vector   :: #import,file "vector.jai";
+Triangle :: #import,file "triangle.jai";
 
 #import "SDL";
 
-Cube :: struct {
-    point_positions: [9 * 9 * 9]Vector.Vector3;
-
-    rotation: Vector.Vector3;
-
-    projected_point_positions: [9 * 9 * 9]Vector.Vector2;
-}
+#load "my_mesh.jai";
 
 Camera :: struct {
-    position: Vector.Vector3 = { 0, 0, -3 };
+    position: Vector.Vector3 = { 0, 0, -5 };
     fov:      int            = 640;
 }
 
 FPS: float : 30;
 FRAME_TARGET_TIME_MILLIS: float : 1000.0 / FPS;
 
-cube:   Cube;
-camera: Camera;
-
 previous_frame_time_millis: float64;
 is_running: bool;
+
+orientation: Vector.Vector3;
+camera: Camera;
+triangles_to_render: [MESH_FACES.count]Triangle.Triangle;
 
 main :: () {
     #if DEBUG {
@@ -53,28 +49,6 @@ main :: () {
 }
 
 setup :: () {
-    { // Generate cube points
-        cursor: u32;
-
-        x: float = -1;
-        while x <= 1 {
-            defer x += 0.25;
-
-            y: float = -1;
-            while y <= 1 {
-                defer y += 0.25;
-
-                z: float = -1;
-                while z <= 1 {
-                    defer z += 0.25;
-                    defer cursor += 1;
-
-                    cube.point_positions[cursor] = { x, y, z };
-                }
-            }
-        }
-    }
-
     is_running = true;
 }
 
@@ -106,22 +80,35 @@ update :: () {
         previous_frame_time_millis = seconds_since_init() * 1000;
     }
 
-    cube.rotation.x += 0.02;
-    cube.rotation.y += 0.02;
-    cube.rotation.z += 0.02;
+    orientation.x += 0.01;
+    orientation.y += 0.01;
+    orientation.z += 0.01;
 
-    // Project the cube points
-    for point_position: cube.point_positions {
-        transformed_point := Vector.rotate_around_x(point_position, cube.rotation.x);
-        transformed_point = Vector.rotate_around_y(transformed_point, cube.rotation.y);
-        transformed_point = Vector.rotate_around_z(transformed_point, cube.rotation.z);
+    for face: MESH_FACES {
+        vertices := Vector.Vector3.[
+            MESH_VERTICES[face.a - 1],
+            MESH_VERTICES[face.b - 1],
+            MESH_VERTICES[face.c - 1],
+        ];
 
-        transformed_point.z -= camera.position.z;
+        projected_triangle: Triangle.Triangle;
 
-        cube.projected_point_positions[it_index] = project_perspective(
-            transformed_point,
-            camera.fov,
-        );
+        for vertex: vertices {
+            transformed := Vector.rotate_around_x(vertex, orientation.x);
+            transformed = Vector.rotate_around_y(transformed, orientation.y);
+            transformed = Vector.rotate_around_z(transformed, orientation.z);
+
+            transformed.z -= camera.position.z;
+
+            projected := project_perspective(transformed, camera.fov);
+
+            projected.x += Display.window_width / 2;
+            projected.y += Display.window_height / 2;
+
+            projected_triangle.points[it_index] = projected;
+        }
+
+        triangles_to_render[it_index] = projected_triangle;
     }
 }
 
@@ -130,15 +117,16 @@ render :: () {
 
     Display.draw_grid(0xFF333333, 10);
 
-    // Draw (projected) cube points
-    for cube.projected_point_positions {
-        Display.draw_rectangle(
-            xx (it.x + Display.window_width / 2),
-            xx (it.y + Display.window_height / 2),
-            4,
-            4,
-            0xFFFFFF00,
-        );
+    for triangle: triangles_to_render {
+        for point: triangle.points {
+            Display.draw_rectangle(
+                xx point.x,
+                xx point.y,
+                4,
+                4,
+                0xFFFFFF00,
+            );
+        }
     }
 
     Display.finish_drawing();
