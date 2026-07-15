@@ -99,7 +99,7 @@ update :: () {
     { // Control FPS
         current_frame_time_millis := seconds_since_init() * 1000;
         time_to_wait := FRAME_TARGET_TIME_MILLIS - (current_frame_time_millis - previous_frame_time_millis);
-        if time_to_wait > 0 {
+        if time_to_wait > 0 && time_to_wait <= FRAME_TARGET_TIME_MILLIS {
             sleep_milliseconds(xx time_to_wait);
         }
         delta_time = seconds_since_init() * 1000 - previous_frame_time_millis;

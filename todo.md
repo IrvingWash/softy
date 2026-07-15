@@ -1,1 +1,1 @@
-[Time step](https://courses.pikuma.com/courses/take/learn-computer-graphics-programming/lessons/11811743-fixing-our-game-loop-time-step)
+[Constant delta time](https://courses.pikuma.com/courses/take/learn-computer-graphics-programming/texts/19430382-constant-framerate-delta-time)
