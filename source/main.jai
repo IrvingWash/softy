@@ -23,13 +23,19 @@ Camera :: struct {
     fov:      int            = 640;
 }
 
+FPS: float : 30;
+FRAME_TARGET_TIME_MILLIS: float : 1000.0 / FPS;
+
 cube:   Cube;
 camera: Camera;
 
+previous_frame_time_millis: float64;
 is_running: bool;
 
 main :: () {
-    defer report_memory_leaks();
+    #if DEBUG {
+        defer report_memory_leaks();
+    }
 
     setup_formatting();
 
@@ -89,9 +95,20 @@ process_input :: () {
 }
 
 update :: () {
-    cube.rotation.x += 0.01;
-    cube.rotation.y += 0.01;
-    cube.rotation.z += 0.01;
+    delta_time: float64;
+    { // Control FPS
+        current_frame_time_millis := seconds_since_init() * 1000;
+        time_to_wait := FRAME_TARGET_TIME_MILLIS - (current_frame_time_millis - previous_frame_time_millis);
+        if time_to_wait > 0 {
+            sleep_milliseconds(xx time_to_wait);
+        }
+        delta_time = seconds_since_init() * 1000 - previous_frame_time_millis;
+        previous_frame_time_millis = seconds_since_init() * 1000;
+    }
+
+    cube.rotation.x += 0.02;
+    cube.rotation.y += 0.02;
+    cube.rotation.z += 0.02;
 
     // Project the cube points
     for point_position: cube.point_positions {
