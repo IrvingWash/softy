@@ -119,7 +119,7 @@ render :: () {
 
     for triangle: triangles_to_render {
         for point: triangle.points {
-            Display.draw_rectangle(
+            Display.draw_filled_rectangle(
                 xx point.x,
                 xx point.y,
                 4,
@@ -127,6 +127,13 @@ render :: () {
                 0xFFFFFF00,
             );
         }
+
+        Display.draw_triangle(
+            xx triangle.points[0].x, xx triangle.points[0].y,
+            xx triangle.points[1].x, xx triangle.points[1].y,
+            xx triangle.points[2].x, xx triangle.points[2].y,
+            0xFF00FF00,
+        );
     }
 
     Display.finish_drawing();

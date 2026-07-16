@@ -41,7 +41,7 @@ finish_drawing :: () {
     SDL_RenderPresent(renderer);
 }
 
-draw_rectangle :: (x: s32, y: s32, width: s32, height: s32, color: u32) {
+draw_filled_rectangle :: (x: s32, y: s32, width: s32, height: s32, color: u32) {
     for w: 0..width - 1 {
         for h: 0..height - 1 {
             cx := x + w;
@@ -49,6 +49,39 @@ draw_rectangle :: (x: s32, y: s32, width: s32, height: s32, color: u32) {
 
             draw_pixel(cx, cy, color);
         }
+    }
+}
+
+draw_triangle :: (
+    x0: s32, y0: s32,
+    x1: s32, y1: s32,
+    x2: s32, y2: s32,
+    color: u32,
+) {
+    draw_line(x0, y0, x1, y1, color);
+    draw_line(x1, y1, x2, y2, color);
+    draw_line(x2, y2, x0, y0, color);
+}
+
+draw_line :: (x0: s32, y0: s32, x1: s32, y1: s32, color: u32) {
+    delta_x := x1 - x0;
+    delta_y := y1 - y0;
+
+    longest_side_length := ifx Math.abs(delta_x) >= Math.abs(delta_y)
+        then Math.abs(delta_x)
+        else Math.abs(delta_y);
+
+    x_step: float = cast(float, delta_x) / cast(float, longest_side_length);
+    y_step: float = cast(float, delta_y) / cast(float, longest_side_length);
+
+    current_x: float = cast(float, x0);
+    current_y: float = cast(float, y0);
+
+    for 0..longest_side_length {
+        draw_pixel(round(current_x, s32), round(current_y, s32), color);
+
+        current_x += x_step;
+        current_y += y_step;
     }
 }
 
@@ -128,6 +161,19 @@ clear_color_buffer :: (clear_color: u32) {
     }
 }
 
+round :: (value: $T, $R: Type = int) -> R
+#modify {
+    return IsScalar(T);
+}
+{
+    if value > 0 {
+        return cast(R, value + 0.5);
+    } else {
+        return cast(R, value - 0.5);
+    }
+}
+
 #import "Basic";
 #import "SDL";
 Vector :: #import,file "vector.jai";
+Math :: #import "Math";
