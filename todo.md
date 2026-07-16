@@ -1,1 +1,1 @@
-[Constant delta time](https://courses.pikuma.com/courses/take/learn-computer-graphics-programming/texts/19430382-constant-framerate-delta-time)
+[Line equation](https://courses.pikuma.com/courses/take/learn-computer-graphics-programming/lessons/11811801-line-equation)
