@@ -11,8 +11,7 @@ Display  :: #import,file "display.jai";
 Vector   :: #import,file "vector.jai";
 Triangle :: #import,file "triangle.jai";
 Mesh     :: #import,file "mesh.jai";
-
-#load "assets.jai";
+Obj      :: #import,file "obj_parser.jai";
 
 Camera :: struct {
     position: Vector.Vector3 = { 0, 0, -5 };
@@ -47,14 +46,17 @@ main :: () {
         process_input();
         update();
         render();
+
+        reset_temporary_storage();
     }
 }
 
 setup :: () {
     is_running = true;
 
-    // from assets.jai
-    mesh = Mesh.create_mesh(CUBE_MESH.VERTICES, CUBE_MESH.FACES);
+    obj := Obj.parse("assets/f22.obj");
+    defer Obj.destroy(*obj);
+    mesh = Mesh.create_mesh(obj.vertices, obj.faces);
 }
 
 destroy :: () {
