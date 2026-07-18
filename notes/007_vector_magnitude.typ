@@ -1,6 +1,6 @@
 #import "@preview/cetz:0.5.2"
 
-= Vector magnitude (length)
+= Vector Magnitude (Length)
 
 To find the length of a vector, we just need to use the Pythagorean theorem.
 
