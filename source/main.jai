@@ -26,7 +26,7 @@ is_running: bool;
 
 orientation: Vector.Vector3;
 camera: Camera;
-triangles_to_render: [MESH_FACES.count]Triangle.Triangle;
+triangles_to_render: [..]Triangle.Triangle;
 
 main :: () {
     #if DEBUG {
@@ -52,7 +52,9 @@ setup :: () {
     is_running = true;
 }
 
-destroy :: () {}
+destroy :: () {
+    array_free(triangles_to_render);
+}
 
 process_input :: () {
     event: SDL_Event;
@@ -79,6 +81,8 @@ update :: () {
         delta_time = seconds_since_init() * 1000 - previous_frame_time_millis;
         previous_frame_time_millis = seconds_since_init() * 1000;
     }
+
+    array_reset_keeping_memory(*triangles_to_render);
 
     orientation.x += 0.01;
     orientation.y += 0.01;
@@ -108,7 +112,7 @@ update :: () {
             projected_triangle.points[it_index] = projected;
         }
 
-        triangles_to_render[it_index] = projected_triangle;
+        array_add(*triangles_to_render, projected_triangle);
     }
 }
 
