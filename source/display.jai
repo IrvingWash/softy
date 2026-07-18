@@ -85,6 +85,20 @@ draw_filled_triangle :: (
         x0,x1 = x1,x0;
     }
 
+    // The triangle is already flat-bottom
+    if y1 == y2 {
+        draw_flat_bottom_triangle(x0, y0, x1, y1, x2, y2, color);
+        return;
+    }
+
+    // The triangle is already flat-top
+    if y0 == y1 {
+        draw_flat_top_triangle(x0, y0, x1, y1, x2, y2, color);
+        return;
+    }
+
+    // The triangle is neither flat-bottom nor flat-top
+
     // Find the other end of the middle separator (the firt end is x1 y1)
     My := y1;
     Mx := cast(float, (x2 - x0) * (y1 - y0)) / cast(float, y2 - y0) + x0;
@@ -146,14 +160,47 @@ draw_flat_bottom_triangle :: (
     x1: int, y1: int,
     x2: int, y2: int,
     color: u32,
-) {};
+) {
+    if y1 - y0 == 0 || y2 - y0 == 0 {
+        return;
+    }
+
+    inv_slop_1 := cast(float, x1 - x0) / cast(float, y1 - y0);
+    inv_slop_2 := cast(float, x2 - x0) / cast(float, y2 - y0);
+
+    x_start: float = xx x0;
+    x_end:   float = xx x0;
+    for y: y0..y2 {
+        draw_line(xx x_start, xx y, xx x_end, xx y, color);
+
+        x_start += inv_slop_1;
+        x_end   += inv_slop_2;
+    }
+};
 
 draw_flat_top_triangle :: (
     x0: int, y0: int,
     x1: int, y1: int,
     x2: int, y2: int,
     color: u32,
-) {};
+) {
+    if y2 - y0 == 0 || y2 - y1 == 0 {
+        return;
+    }
+
+    inv_slop_1 := cast(float, x2 - x0) / cast(float, y2 - y0);
+    inv_slop_2 := cast(float, x2 - x1) / cast(float, y2 - y1);
+
+    x_start: float = xx x2;
+    x_end:   float = xx x2;
+
+    for < y: y0..y2 {
+        draw_line(xx x_start, xx y, xx x_end, xx y, color);
+
+        x_start -= inv_slop_1;
+        x_end -= inv_slop_2;
+    }
+};
 
 init_window :: () {
     result := SDL_Init(SDL_INIT_VIDEO);

@@ -13,6 +13,26 @@ Triangle :: #import,file "triangle.jai";
 Mesh     :: #import,file "mesh.jai";
 Obj      :: #import,file "obj_parser.jai";
 
+State :: struct {
+    previous_frame_time_millis: float64;
+    is_running: bool;
+
+    polygon_mode: Polygon_Mode;
+    cull_backfaces: bool = true;
+
+    camera: Camera;
+    mesh: Mesh.Mesh;
+
+    triangles_to_render: [..]Triangle.Triangle;
+}
+
+Polygon_Mode :: enum {
+    WIREFRAME_AND_VERTICES;
+    WIREFRAME;
+    FACES;
+    FACES_AND_WIREFRAME;
+}
+
 Camera :: struct {
     position: Vector.Vector3 = { 0, 0, 0 };
     fov:      int            = 640;
@@ -21,13 +41,7 @@ Camera :: struct {
 FPS: float : 60;
 FRAME_TARGET_TIME_MILLIS: float : 1000.0 / FPS;
 
-previous_frame_time_millis: float64;
-is_running: bool;
-
-camera: Camera;
-mesh: Mesh.Mesh;
-
-triangles_to_render: [..]Triangle.Triangle;
+state: State;
 
 main :: () {
     #if DEBUG {
@@ -42,7 +56,7 @@ main :: () {
     setup();
     defer destroy();
 
-    while is_running {
+    while state.is_running {
         process_input();
         update();
         render();
@@ -52,17 +66,17 @@ main :: () {
 }
 
 setup :: () {
-    is_running = true;
+    state.is_running = true;
 
     obj := Obj.parse("assets/cube.obj");
     defer Obj.destroy(*obj);
-    mesh = Mesh.create_mesh(obj.vertices, obj.faces);
+    state.mesh = Mesh.create_mesh(obj.vertices, obj.faces);
 }
 
 destroy :: () {
-    array_free(triangles_to_render);
+    array_free(state.triangles_to_render);
 
-    Mesh.destroy_mesh(*mesh);
+    Mesh.destroy_mesh(*state.mesh);
 }
 
 process_input :: () {
@@ -71,11 +85,24 @@ process_input :: () {
 
     if event.type == {
         case .SDL_KEYDOWN;
-            if event.key.keysym.sym == SDLK_ESCAPE {
-                is_running = false;
+            if event.key.keysym.sym == {
+                case SDLK_ESCAPE;
+                    state.is_running = false;
+                case SDLK_1;
+                    state.polygon_mode = .WIREFRAME_AND_VERTICES;
+                case SDLK_2;
+                    state.polygon_mode = .WIREFRAME;
+                case SDLK_3;
+                    state.polygon_mode = .FACES;
+                case SDLK_4;
+                    state.polygon_mode = .FACES_AND_WIREFRAME;
+                case SDLK_c;
+                    state.cull_backfaces = true;
+                case SDLK_d;
+                    state.cull_backfaces = false;
             }
         case .SDL_QUIT;
-            is_running = false;
+            state.is_running = false;
     }
 }
 
@@ -83,41 +110,41 @@ update :: () {
     delta_time: float64;
     { // Control FPS
         current_frame_time_millis := seconds_since_init() * 1000;
-        time_to_wait := FRAME_TARGET_TIME_MILLIS - (current_frame_time_millis - previous_frame_time_millis);
+        time_to_wait := FRAME_TARGET_TIME_MILLIS - (current_frame_time_millis - state.previous_frame_time_millis);
         if time_to_wait > 0 && time_to_wait <= FRAME_TARGET_TIME_MILLIS {
             sleep_milliseconds(xx time_to_wait);
         }
-        delta_time = seconds_since_init() * 1000 - previous_frame_time_millis;
-        previous_frame_time_millis = seconds_since_init() * 1000;
+        delta_time = seconds_since_init() * 1000 - state.previous_frame_time_millis;
+        state.previous_frame_time_millis = seconds_since_init() * 1000;
     }
 
-    array_reset_keeping_memory(*triangles_to_render);
+    array_reset_keeping_memory(*state.triangles_to_render);
 
-    mesh.rotation.x += 0.01;
-    mesh.rotation.y += 0.01;
-    mesh.rotation.z += 0.01;
+    state.mesh.rotation.x += 0.01;
+    state.mesh.rotation.y += 0.01;
+    state.mesh.rotation.z += 0.01;
 
-    for face: mesh.faces {
+    for face: state.mesh.faces {
         face_vertices := Vector.Vector3.[
-            mesh.vertices[face.a - 1],
-            mesh.vertices[face.b - 1],
-            mesh.vertices[face.c - 1],
+            state.mesh.vertices[face.a - 1],
+            state.mesh.vertices[face.b - 1],
+            state.mesh.vertices[face.c - 1],
         ];
 
         // Transform
         transformed_vertices: [3]Vector.Vector3;
         for face_vertex: face_vertices {
-            transformed := Vector.rotate_around_x(face_vertex, mesh.rotation.x);
-            transformed = Vector.rotate_around_y(transformed, mesh.rotation.y);
-            transformed = Vector.rotate_around_z(transformed, mesh.rotation.z);
+            transformed := Vector.rotate_around_x(face_vertex, state.mesh.rotation.x);
+            transformed = Vector.rotate_around_y(transformed, state.mesh.rotation.y);
+            transformed = Vector.rotate_around_z(transformed, state.mesh.rotation.z);
 
             transformed.z += 5;
 
             transformed_vertices[it_index] = transformed;
         }
 
-        // Cull back-faces
-        {
+        // Cull backfaces
+        if state.cull_backfaces {
             vertex_a := transformed_vertices[0];
             vertex_b := transformed_vertices[1];
             vertex_c := transformed_vertices[2];
@@ -127,7 +154,7 @@ update :: () {
 
             // We calculate this ourselves, but .obj files contain normal data
             normal     := Vector.normalize(Vector.cross(vector_ab, vector_ac));
-            camera_ray := camera.position - vertex_a;
+            camera_ray := state.camera.position - vertex_a;
 
             alingment := Vector.dot(normal, camera_ray);
 
@@ -139,7 +166,7 @@ update :: () {
         // Project
         projected_triangle: Triangle.Triangle;
         for transformed: transformed_vertices {
-            projected := project_perspective(transformed, camera.fov);
+            projected := project_perspective(transformed, state.camera.fov);
 
             projected.x += Display.window_width / 2;
             projected.y += Display.window_height / 2;
@@ -147,38 +174,61 @@ update :: () {
             projected_triangle.points[it_index] = projected;
         }
 
-        array_add(*triangles_to_render, projected_triangle);
+        array_add(*state.triangles_to_render, projected_triangle);
     }
 }
 
 render :: () {
     Display.start_drawing();
 
-    for triangle: triangles_to_render {
-        for point: triangle.points {
-            Display.draw_filled_rectangle(
-                xx point.x,
-                xx point.y,
-                4,
-                4,
-                0xFFFFFF00,
-            );
+    for triangle: state.triangles_to_render {
+        if state.polygon_mode == {
+            case .WIREFRAME_AND_VERTICES;
+                for point: triangle.points {
+                    Display.draw_filled_rectangle(
+                        xx point.x,
+                        xx point.y,
+                        4,
+                        4,
+                        0xFF0000FF,
+                    );
+                }
+
+                Display.draw_triangle(
+                    xx triangle.points[0].x, xx triangle.points[0].y,
+                    xx triangle.points[1].x, xx triangle.points[1].y,
+                    xx triangle.points[2].x, xx triangle.points[2].y,
+                    0xFFFFFF00,
+                );
+            case .WIREFRAME;
+                Display.draw_triangle(
+                    xx triangle.points[0].x, xx triangle.points[0].y,
+                    xx triangle.points[1].x, xx triangle.points[1].y,
+                    xx triangle.points[2].x, xx triangle.points[2].y,
+                    0xFFFFFF00,
+                );
+            case .FACES;
+                Display.draw_filled_triangle(
+                    xx triangle.points[0].x, xx triangle.points[0].y,
+                    xx triangle.points[1].x, xx triangle.points[1].y,
+                    xx triangle.points[2].x, xx triangle.points[2].y,
+                    0xFFAAAAAA,
+                );
+            case .FACES_AND_WIREFRAME;
+                Display.draw_filled_triangle(
+                    xx triangle.points[0].x, xx triangle.points[0].y,
+                    xx triangle.points[1].x, xx triangle.points[1].y,
+                    xx triangle.points[2].x, xx triangle.points[2].y,
+                    0xFFAAAAAA,
+                );
+                Display.draw_triangle(
+                    xx triangle.points[0].x, xx triangle.points[0].y,
+                    xx triangle.points[1].x, xx triangle.points[1].y,
+                    xx triangle.points[2].x, xx triangle.points[2].y,
+                    0xFFFFFF00,
+                );
         }
-
-        Display.draw_triangle(
-            xx triangle.points[0].x, xx triangle.points[0].y,
-            xx triangle.points[1].x, xx triangle.points[1].y,
-            xx triangle.points[2].x, xx triangle.points[2].y,
-            0xFF00FF00,
-        );
     }
-
-    Display.draw_filled_triangle(
-        300, 100,
-        50,  400,
-        500, 700,
-        0xFF00FF00,
-    );
 
     Display.finish_drawing();
 }
