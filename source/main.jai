@@ -54,7 +54,7 @@ main :: () {
 setup :: () {
     is_running = true;
 
-    obj := Obj.parse("assets/f22.obj");
+    obj := Obj.parse("assets/cube.obj");
     defer Obj.destroy(*obj);
     mesh = Mesh.create_mesh(obj.vertices, obj.faces);
 }

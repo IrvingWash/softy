@@ -15,6 +15,14 @@ Vector3 :: struct {
     #overlay(y) yz:         Vector2;
 }
 
+get_length :: (v: Vector3) -> float {
+    return Math.sqrt(v.x*v.x + v.y*v.y + v.z*v.z);
+}
+
+get_squared_length :: (v: Vector3) -> float {
+    return v.x*v.x + v.y*v.y + v.z*v.z;
+}
+
 rotate_around_x :: (vector: Vector3, angle: float) -> Vector3 {
     return Vector3.{
         x = vector.x,
