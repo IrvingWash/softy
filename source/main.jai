@@ -173,6 +173,13 @@ render :: () {
         );
     }
 
+    Display.draw_filled_triangle(
+        300, 100,
+        50,  400,
+        500, 700,
+        0xFF00FF00,
+    );
+
     Display.finish_drawing();
 }
 

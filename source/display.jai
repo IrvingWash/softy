@@ -63,6 +63,39 @@ draw_triangle :: (
     draw_line(x2, y2, x0, y0, color);
 }
 
+// We draw filled triangles using the flat-bottom & flat-top technique
+draw_filled_triangle :: (
+    x0: s32, y0: s32,
+    x1: s32, y1: s32,
+    x2: s32, y2: s32,
+    color: u32,
+) {
+    // Sort vertices so y0 is always the the top one, y1 is always the middle one, y2 is always the bottom one.
+    // We need to know exactly where each vertex is vertically.
+    if y0 > y1 {
+        y0,y1 = y1,y0;
+        x0,x1 = x1,x0;
+    }
+    if y1 > y2 {
+        y1,y2 = y2,y1;
+        x1,x2 = x2,x1;
+    }
+    if y0 > y1 {
+        y0,y1 = y1,y0;
+        x0,x1 = x1,x0;
+    }
+
+    // Find the other end of the middle separator (the firt end is x1 y1)
+    My := y1;
+    Mx := cast(float, (x2 - x0) * (y1 - y0)) / cast(float, y2 - y0) + x0;
+
+    // Draw flat-bottom triangle
+    draw_flat_bottom_triangle(x0, y0, x1, y1, xx Mx, My, color);
+
+    // Draw flat-top triangle
+    draw_flat_top_triangle(x1, y1, xx Mx, My, x2, y2, color);
+}
+
 draw_line :: (x0: s32, y0: s32, x1: s32, y1: s32, color: u32) {
     delta_x := x1 - x0;
     delta_y := y1 - y0;
@@ -107,6 +140,20 @@ draw_pixel :: (x: s32, y: s32, color: u32) {
 
 
 #scope_file
+
+draw_flat_bottom_triangle :: (
+    x0: int, y0: int,
+    x1: int, y1: int,
+    x2: int, y2: int,
+    color: u32,
+) {};
+
+draw_flat_top_triangle :: (
+    x0: int, y0: int,
+    x1: int, y1: int,
+    x2: int, y2: int,
+    color: u32,
+) {};
 
 init_window :: () {
     result := SDL_Init(SDL_INIT_VIDEO);
