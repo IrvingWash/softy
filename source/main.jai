@@ -5,13 +5,14 @@
     TEMP_ALLOCATOR_OVERWRITE_MEMORY = DEBUG,
 );
 
+#import "SDL";
+
 Display  :: #import,file "display.jai";
 Vector   :: #import,file "vector.jai";
 Triangle :: #import,file "triangle.jai";
+Mesh     :: #import,file "mesh.jai";
 
-#import "SDL";
-
-#load "my_mesh.jai";
+#load "assets.jai";
 
 Camera :: struct {
     position: Vector.Vector3 = { 0, 0, -5 };
@@ -24,8 +25,9 @@ FRAME_TARGET_TIME_MILLIS: float : 1000.0 / FPS;
 previous_frame_time_millis: float64;
 is_running: bool;
 
-orientation: Vector.Vector3;
 camera: Camera;
+mesh: Mesh.Mesh;
+
 triangles_to_render: [..]Triangle.Triangle;
 
 main :: () {
@@ -50,10 +52,15 @@ main :: () {
 
 setup :: () {
     is_running = true;
+
+    // from assets.jai
+    mesh = Mesh.create_mesh(CUBE_MESH.VERTICES, CUBE_MESH.FACES);
 }
 
 destroy :: () {
     array_free(triangles_to_render);
+
+    Mesh.destroy_mesh(*mesh);
 }
 
 process_input :: () {
@@ -84,23 +91,23 @@ update :: () {
 
     array_reset_keeping_memory(*triangles_to_render);
 
-    orientation.x += 0.01;
-    orientation.y += 0.01;
-    orientation.z += 0.01;
+    mesh.rotation.x += 0.01;
+    mesh.rotation.y += 0.01;
+    mesh.rotation.z += 0.01;
 
-    for face: MESH_FACES {
+    for face: mesh.faces {
         vertices := Vector.Vector3.[
-            MESH_VERTICES[face.a - 1],
-            MESH_VERTICES[face.b - 1],
-            MESH_VERTICES[face.c - 1],
+            mesh.vertices[face.a - 1],
+            mesh.vertices[face.b - 1],
+            mesh.vertices[face.c - 1],
         ];
 
         projected_triangle: Triangle.Triangle;
 
         for vertex: vertices {
-            transformed := Vector.rotate_around_x(vertex, orientation.x);
-            transformed = Vector.rotate_around_y(transformed, orientation.y);
-            transformed = Vector.rotate_around_z(transformed, orientation.z);
+            transformed := Vector.rotate_around_x(vertex, mesh.rotation.x);
+            transformed = Vector.rotate_around_y(transformed, mesh.rotation.y);
+            transformed = Vector.rotate_around_z(transformed, mesh.rotation.z);
 
             transformed.z -= camera.position.z;
 
