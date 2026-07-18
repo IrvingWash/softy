@@ -94,8 +94,8 @@ update :: () {
     array_reset_keeping_memory(*triangles_to_render);
 
     mesh.rotation.x += 0.01;
-    mesh.rotation.y += 0.01;
-    mesh.rotation.z += 0.01;
+    mesh.rotation.y += 0.00;
+    mesh.rotation.z += 0.00;
 
     for face: mesh.faces {
         vertices := Vector.Vector3.[
@@ -127,8 +127,6 @@ update :: () {
 
 render :: () {
     Display.start_drawing();
-
-    Display.draw_grid(0xFF333333, 10);
 
     for triangle: triangles_to_render {
         for point: triangle.points {
