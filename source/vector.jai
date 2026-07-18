@@ -104,11 +104,11 @@ operator /= :: (a: *Vector3, b: float) {
     a.z /= b;
 }
 
-get_length :: (v: Vector3) -> float {
+length :: (v: Vector3) -> float {
     return Math.sqrt(v.x*v.x + v.y*v.y + v.z*v.z);
 }
 
-get_squared_length :: (v: Vector3) -> float {
+squared_length :: (v: Vector3) -> float {
     return v.x*v.x + v.y*v.y + v.z*v.z;
 }
 
@@ -122,6 +122,14 @@ cross :: (a: Vector3, b: Vector3) -> Vector3 {
 
 dot :: (a: Vector3, b: Vector3) -> float {
     return a.x * b.x + a.y * b.y + a.z * b.z;
+}
+
+normalize :: (v: Vector3) -> Vector3 {
+    return v / length(v);
+}
+
+normalize :: (v: *Vector3) {
+    v / length(v);
 }
 
 rotate_around_x :: (vector: Vector3, angle: float) -> Vector3 {

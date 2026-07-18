@@ -54,7 +54,7 @@ main :: () {
 setup :: () {
     is_running = true;
 
-    obj := Obj.parse("assets/f22.obj");
+    obj := Obj.parse("assets/cube.obj");
     defer Obj.destroy(*obj);
     mesh = Mesh.create_mesh(obj.vertices, obj.faces);
 }
@@ -126,7 +126,7 @@ update :: () {
             vector_ac := vertex_c - vertex_a;
 
             // We calculate this ourselves, but .obj files contain normal data
-            normal     := Vector.cross(vector_ab, vector_ac);
+            normal     := Vector.normalize(Vector.cross(vector_ab, vector_ac));
             camera_ray := camera.position - vertex_a;
 
             alingment := Vector.dot(normal, camera_ray);
