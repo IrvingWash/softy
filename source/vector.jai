@@ -120,6 +120,10 @@ cross :: (a: Vector3, b: Vector3) -> Vector3 {
     };
 }
 
+dot :: (a: Vector3, b: Vector3) -> float {
+    return a.x * b.x + a.y * b.y + a.z * b.z;
+}
+
 rotate_around_x :: (vector: Vector3, angle: float) -> Vector3 {
     return Vector3.{
         x = vector.x,
