@@ -14,7 +14,7 @@ Mesh     :: #import,file "mesh.jai";
 Obj      :: #import,file "obj_parser.jai";
 
 Camera :: struct {
-    position: Vector.Vector3 = { 0, 0, -5 };
+    position: Vector.Vector3 = { 0, 0, 0 };
     fov:      int            = 640;
 }
 
@@ -54,7 +54,7 @@ main :: () {
 setup :: () {
     is_running = true;
 
-    obj := Obj.parse("assets/cube.obj");
+    obj := Obj.parse("assets/f22.obj");
     defer Obj.destroy(*obj);
     mesh = Mesh.create_mesh(obj.vertices, obj.faces);
 }
@@ -94,25 +94,50 @@ update :: () {
     array_reset_keeping_memory(*triangles_to_render);
 
     mesh.rotation.x += 0.01;
-    mesh.rotation.y += 0.00;
-    mesh.rotation.z += 0.00;
+    mesh.rotation.y += 0.01;
+    mesh.rotation.z += 0.01;
 
     for face: mesh.faces {
-        vertices := Vector.Vector3.[
+        face_vertices := Vector.Vector3.[
             mesh.vertices[face.a - 1],
             mesh.vertices[face.b - 1],
             mesh.vertices[face.c - 1],
         ];
 
-        projected_triangle: Triangle.Triangle;
-
-        for vertex: vertices {
-            transformed := Vector.rotate_around_x(vertex, mesh.rotation.x);
+        // Transform
+        transformed_vertices: [3]Vector.Vector3;
+        for face_vertex: face_vertices {
+            transformed := Vector.rotate_around_x(face_vertex, mesh.rotation.x);
             transformed = Vector.rotate_around_y(transformed, mesh.rotation.y);
             transformed = Vector.rotate_around_z(transformed, mesh.rotation.z);
 
-            transformed.z -= camera.position.z;
+            transformed.z += 5;
 
+            transformed_vertices[it_index] = transformed;
+        }
+
+        // Cull back-faces
+        {
+            vertex_a := transformed_vertices[0];
+            vertex_b := transformed_vertices[1];
+            vertex_c := transformed_vertices[2];
+
+            vector_ab := vertex_b - vertex_a;
+            vector_ac := vertex_c - vertex_a;
+
+            normal     := Vector.cross(vector_ab, vector_ac);
+            camera_ray := camera.position - vertex_a;
+
+            alingment := Vector.dot(normal, camera_ray);
+
+            if alingment <= 0 {
+                continue;
+            }
+        }
+
+        // Project
+        projected_triangle: Triangle.Triangle;
+        for transformed: transformed_vertices {
             projected := project_perspective(transformed, camera.fov);
 
             projected.x += Display.window_width / 2;
@@ -171,3 +196,5 @@ setup_formatting :: () {
     print_style.default_format_struct.use_long_form_if_more_than_this_many_members = 0;
     print_style.default_format_struct.use_newlines_if_long_form = true;
 }
+
+using,only(operator -) Vector;

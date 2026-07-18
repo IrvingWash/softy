@@ -45,6 +45,21 @@ subtract :: (a: *Vector3, b: Vector3) {
     a -= b;
 }
 
+operator - :: (a: Vector3, b: Vector3) -> Vector3 {
+    return Vector3.{
+        a.x - b.x,
+        a.y - b.y,
+        a.z - b.z,
+    };
+}
+
+operator -= :: (a: *Vector3, b: Vector3) {
+    a.x -= b.x;
+    a.y -= b.y;
+    a.z -= b.z;
+}
+
+
 multiply :: (a: Vector3, b: float) -> Vector3 {
     return a * b;
 }
@@ -88,21 +103,6 @@ operator /= :: (a: *Vector3, b: float) {
     a.y /= b;
     a.z /= b;
 }
-
-operator - :: (a: Vector3, b: Vector3) -> Vector3 {
-    return Vector3.{
-        a.x - b.x,
-        a.y - b.y,
-        a.z - b.z,
-    };
-}
-
-operator -= :: (a: *Vector3, b: Vector3) {
-    a.x -= b.x;
-    a.y -= b.y;
-    a.z -= b.z;
-}
-
 
 get_length :: (v: Vector3) -> float {
     return Math.sqrt(v.x*v.x + v.y*v.y + v.z*v.z);
