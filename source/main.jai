@@ -125,6 +125,7 @@ update :: () {
             vector_ab := vertex_b - vertex_a;
             vector_ac := vertex_c - vertex_a;
 
+            // We calculate this ourselves, but .obj files contain normal data
             normal     := Vector.cross(vector_ab, vector_ac);
             camera_ray := camera.position - vertex_a;
 
