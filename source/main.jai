@@ -18,7 +18,7 @@ Camera :: struct {
     fov:      int            = 640;
 }
 
-FPS: float : 30;
+FPS: float : 60;
 FRAME_TARGET_TIME_MILLIS: float : 1000.0 / FPS;
 
 previous_frame_time_millis: float64;
