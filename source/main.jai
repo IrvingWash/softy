@@ -17,8 +17,8 @@ State :: struct {
     previous_frame_time_millis: float64;
     is_running: bool;
 
-    polygon_mode: Polygon_Mode;
-    cull_backfaces: bool = true;
+    polygon_mode:   Polygon_Mode;
+    cull_backfaces: Cull_Mode;
 
     camera: Camera;
     mesh: Mesh.Mesh;
@@ -31,6 +31,11 @@ Polygon_Mode :: enum {
     WIREFRAME;
     FACES;
     FACES_AND_WIREFRAME;
+}
+
+Cull_Mode :: enum {
+    BACKFACES;
+    NONE;
 }
 
 Camera :: struct {
@@ -71,6 +76,9 @@ setup :: () {
     obj := Obj.parse("assets/cube.obj");
     defer Obj.destroy(*obj);
     state.mesh = Mesh.create_mesh(obj.vertices, obj.faces);
+    for *face: state.mesh.faces {
+        face.color = 0xFF0000FF;
+    }
 }
 
 destroy :: () {
@@ -97,9 +105,9 @@ process_input :: () {
                 case SDLK_4;
                     state.polygon_mode = .FACES_AND_WIREFRAME;
                 case SDLK_c;
-                    state.cull_backfaces = true;
+                    state.cull_backfaces = .BACKFACES;
                 case SDLK_d;
-                    state.cull_backfaces = false;
+                    state.cull_backfaces = .NONE;
             }
         case .SDL_QUIT;
             state.is_running = false;
@@ -144,27 +152,32 @@ update :: () {
         }
 
         // Cull backfaces
-        if state.cull_backfaces {
-            vertex_a := transformed_vertices[0];
-            vertex_b := transformed_vertices[1];
-            vertex_c := transformed_vertices[2];
+        if #complete state.cull_backfaces == {
+            case .BACKFACES;
+                vertex_a := transformed_vertices[0];
+                vertex_b := transformed_vertices[1];
+                vertex_c := transformed_vertices[2];
 
-            vector_ab := vertex_b - vertex_a;
-            vector_ac := vertex_c - vertex_a;
+                vector_ab := vertex_b - vertex_a;
+                vector_ac := vertex_c - vertex_a;
 
-            // We calculate this ourselves, but .obj files contain normal data
-            normal     := Vector.normalize(Vector.cross(vector_ab, vector_ac));
-            camera_ray := state.camera.position - vertex_a;
+                // We calculate this ourselves, but .obj files contain normal data
+                normal     := Vector.normalize(Vector.cross(vector_ab, vector_ac));
+                camera_ray := state.camera.position - vertex_a;
 
-            alingment := Vector.dot(normal, camera_ray);
+                alingment := Vector.dot(normal, camera_ray);
 
-            if alingment <= 0 {
-                continue;
-            }
+                if alingment <= 0 {
+                    continue;
+                }
+            case .NONE;
+                // Do nothing
         }
 
         // Project
-        projected_triangle: Triangle.Triangle;
+        projected_triangle: Triangle.Triangle = {
+            color = face.color,
+        };
         for transformed: transformed_vertices {
             projected := project_perspective(transformed, state.camera.fov);
 
@@ -181,52 +194,52 @@ update :: () {
 render :: () {
     Display.start_drawing();
 
-    for triangle: state.triangles_to_render {
-        if state.polygon_mode == {
-            case .WIREFRAME_AND_VERTICES;
-                for point: triangle.points {
-                    Display.draw_filled_rectangle(
-                        xx point.x,
-                        xx point.y,
-                        4,
-                        4,
-                        0xFF0000FF,
-                    );
-                }
+    want_vertices: bool;
+    want_wireframe: bool;
+    want_faces: bool;
 
-                Display.draw_triangle(
-                    xx triangle.points[0].x, xx triangle.points[0].y,
-                    xx triangle.points[1].x, xx triangle.points[1].y,
-                    xx triangle.points[2].x, xx triangle.points[2].y,
-                    0xFFFFFF00,
+    if #complete state.polygon_mode == {
+        case .WIREFRAME_AND_VERTICES;
+            want_vertices  = true;
+            want_wireframe = true;
+        case .FACES;
+            want_faces = true;
+        case .WIREFRAME;
+            want_wireframe = true;
+        case .FACES_AND_WIREFRAME;
+            want_faces     = true;
+            want_wireframe = true;
+    }
+
+    for triangle: state.triangles_to_render {
+        if want_faces {
+            Display.draw_filled_triangle(
+                xx triangle.points[0].x, xx triangle.points[0].y,
+                xx triangle.points[1].x, xx triangle.points[1].y,
+                xx triangle.points[2].x, xx triangle.points[2].y,
+                triangle.color,
+            );
+        }
+
+        if want_vertices {
+            for point: triangle.points {
+                Display.draw_filled_rectangle(
+                    xx point.x,
+                    xx point.y,
+                    4,
+                    4,
+                    0xFF0000FF,
                 );
-            case .WIREFRAME;
-                Display.draw_triangle(
-                    xx triangle.points[0].x, xx triangle.points[0].y,
-                    xx triangle.points[1].x, xx triangle.points[1].y,
-                    xx triangle.points[2].x, xx triangle.points[2].y,
-                    0xFFFFFF00,
-                );
-            case .FACES;
-                Display.draw_filled_triangle(
-                    xx triangle.points[0].x, xx triangle.points[0].y,
-                    xx triangle.points[1].x, xx triangle.points[1].y,
-                    xx triangle.points[2].x, xx triangle.points[2].y,
-                    0xFFAAAAAA,
-                );
-            case .FACES_AND_WIREFRAME;
-                Display.draw_filled_triangle(
-                    xx triangle.points[0].x, xx triangle.points[0].y,
-                    xx triangle.points[1].x, xx triangle.points[1].y,
-                    xx triangle.points[2].x, xx triangle.points[2].y,
-                    0xFFAAAAAA,
-                );
-                Display.draw_triangle(
-                    xx triangle.points[0].x, xx triangle.points[0].y,
-                    xx triangle.points[1].x, xx triangle.points[1].y,
-                    xx triangle.points[2].x, xx triangle.points[2].y,
-                    0xFFFFFF00,
-                );
+            }
+        }
+
+        if want_wireframe {
+            Display.draw_triangle(
+                xx triangle.points[0].x, xx triangle.points[0].y,
+                xx triangle.points[1].x, xx triangle.points[1].y,
+                xx triangle.points[2].x, xx triangle.points[2].y,
+                0xFFFFFF00,
+            );
         }
     }
 
