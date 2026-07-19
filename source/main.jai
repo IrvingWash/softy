@@ -143,6 +143,12 @@ update :: () {
     state.mesh.rotation.y += 0.01;
     state.mesh.rotation.z += 0.01;
 
+    state.mesh.scale.x += 0.002;
+    state.mesh.scale.y += 0.002;
+    state.mesh.scale.z += 0.002;
+
+    scale_matrix := My_Math.make_scale_matrix(state.mesh.scale);
+
     for face: state.mesh.faces {
         face_vertices := My_Math.Vector3.[
             state.mesh.vertices[face.a - 1],
@@ -151,11 +157,9 @@ update :: () {
         ];
 
         // Transform
-        transformed_vertices: [3]My_Math.Vector3;
+        transformed_vertices: [3]My_Math.Vector4;
         for face_vertex: face_vertices {
-            transformed := My_Math.rotate_around_x(face_vertex, state.mesh.rotation.x);
-            transformed = My_Math.rotate_around_y(transformed, state.mesh.rotation.y);
-            transformed = My_Math.rotate_around_z(transformed, state.mesh.rotation.z);
+            transformed := scale_matrix * face_vertex;
 
             transformed.z += 5;
 
@@ -165,9 +169,9 @@ update :: () {
         // Cull backfaces
         if #complete state.cull_backfaces == {
             case .BACKFACES;
-                vertex_a := transformed_vertices[0];
-                vertex_b := transformed_vertices[1];
-                vertex_c := transformed_vertices[2];
+                vertex_a := transformed_vertices[0].xyz;
+                vertex_b := transformed_vertices[1].xyz;
+                vertex_c := transformed_vertices[2].xyz;
 
                 vector_ab := vertex_b - vertex_a;
                 vector_ac := vertex_c - vertex_a;
@@ -191,7 +195,7 @@ update :: () {
             average_depth = (transformed_vertices[0].z + transformed_vertices[1].z + transformed_vertices[2].z) / 3.0,
         };
         for transformed: transformed_vertices {
-            projected := project_perspective(transformed, state.camera.fov);
+            projected := project_perspective(transformed.xyz, state.camera.fov);
 
             projected.x += Display.window_width / 2;
             projected.y += Display.window_height / 2;
@@ -285,4 +289,4 @@ setup_formatting :: () {
     print_style.default_format_struct.use_newlines_if_long_form = true;
 }
 
-using,only(operator -) My_Math;
+using,only(operator -, operator *) My_Math;

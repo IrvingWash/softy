@@ -1,3 +1,7 @@
+Matrix4 :: struct {
+    elements: [4][4]float;
+}
+
 Vector2 :: struct {
     x: float;
     y: float;
@@ -13,6 +17,36 @@ Vector3 :: struct {
     #overlay(x) components: [3]float;
     #overlay(x) xy:         Vector2;
     #overlay(y) yz:         Vector2;
+}
+
+Vector4 :: struct {
+    x: float;
+    y: float;
+    z: float;
+    w: float;
+
+    #overlay(x) components: [4]float;
+    #overlay(x) xyz:        Vector3;
+}
+
+Matrix4_Identity :: Matrix4.{
+    elements = [4]float.[
+        float.[1, 0, 0, 0],
+        float.[0, 1, 0, 0],
+        float.[0, 0, 1, 0],
+        float.[0, 0, 0, 1],
+    ],
+};
+
+make_scale_matrix :: (v: Vector3) -> Matrix4 {
+    matrix: Matrix4;
+
+    matrix.elements[0][0] = v.x;
+    matrix.elements[1][1] = v.y;
+    matrix.elements[2][2] = v.z;
+    matrix.elements[3][3] = 1;
+
+    return matrix;
 }
 
 add :: (a: Vector3, b: Vector3) -> Vector3 {
@@ -68,6 +102,10 @@ multiply :: (a: *Vector3, b: float) {
     a *= b;
 }
 
+multiply :: (m: Matrix4, v: Vector3) -> Vector4 {
+    return m * v;
+}
+
 operator * :: (a: Vector3, b: float) -> Vector3 {
     return Vector3.{
         a.x * b,
@@ -80,6 +118,17 @@ operator *= :: (a: *Vector3, b: float) -> Vector3 {
     a.x *= b;
     a.y *= b;
     a.z *= b;
+}
+
+operator * :: (m: Matrix4, v: Vector3) -> Vector4 {
+    result: Vector4;
+
+    result.x = m.elements[0][0] * v.x + m.elements[0][1] * v.y + m.elements[0][2] * v.z + m.elements[0][3];
+    result.y = m.elements[1][0] * v.x + m.elements[1][1] * v.y + m.elements[1][2] * v.z + m.elements[1][3];
+    result.z = m.elements[2][0] * v.x + m.elements[2][1] * v.y + m.elements[2][2] * v.z + m.elements[2][3];
+    result.w = m.elements[3][0] * v.x + m.elements[3][1] * v.y + m.elements[3][2] * v.z + m.elements[3][3];
+
+    return result;
 }
 
 divide :: (a: Vector3, b: float) -> Vector3 {

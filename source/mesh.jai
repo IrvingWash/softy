@@ -2,7 +2,9 @@ Mesh :: struct {
     vertices: [..]My_Math.Vector3;
     faces:    [..]Triangle.Face;
 
-    rotation: My_Math.Vector3;
+    translation: My_Math.Vector3;
+    scale:       My_Math.Vector3 = { 1, 1, 1 };
+    rotation:    My_Math.Vector3;
 }
 
 create_mesh :: (vertices: []My_Math.Vector3, faces: []Triangle.Face) -> Mesh {
