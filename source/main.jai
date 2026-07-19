@@ -5,6 +5,8 @@
     TEMP_ALLOCATOR_OVERWRITE_MEMORY = DEBUG,
 );
 
+#import "Sort";
+
 #import "SDL";
 
 Display  :: #import,file "display.jai";
@@ -76,9 +78,18 @@ setup :: () {
     obj := Obj.parse("assets/cube.obj");
     defer Obj.destroy(*obj);
     state.mesh = Mesh.create_mesh(obj.vertices, obj.faces);
-    for *face: state.mesh.faces {
-        face.color = 0xFF0000FF;
-    }
+    state.mesh.faces[0].color  = 0xFFFF0000;
+    state.mesh.faces[1].color  = 0xFFFF0000;
+    state.mesh.faces[2].color  = 0xFF00FF00;
+    state.mesh.faces[3].color  = 0xFF00FF00;
+    state.mesh.faces[4].color  = 0xFF0000FF;
+    state.mesh.faces[5].color  = 0xFF0000FF;
+    state.mesh.faces[6].color  = 0xFFFFFF00;
+    state.mesh.faces[7].color  = 0xFFFFFF00;
+    state.mesh.faces[8].color  = 0xFF00FFFF;
+    state.mesh.faces[9].color  = 0xFF00FFFF;
+    state.mesh.faces[10].color = 0xFFFFFFFF;
+    state.mesh.faces[11].color = 0xFFFFFFFF;
 }
 
 destroy :: () {
@@ -177,6 +188,7 @@ update :: () {
         // Project
         projected_triangle: Triangle.Triangle = {
             color = face.color,
+            average_depth = (transformed_vertices[0].z + transformed_vertices[1].z + transformed_vertices[2].z) / 3.0,
         };
         for transformed: transformed_vertices {
             projected := project_perspective(transformed, state.camera.fov);
@@ -189,6 +201,11 @@ update :: () {
 
         array_add(*state.triangles_to_render, projected_triangle);
     }
+
+    quick_sort(
+        state.triangles_to_render,
+        (a: Triangle.Triangle, b: Triangle.Triangle) -> float { return b.average_depth - a.average_depth; }
+    );
 }
 
 render :: () {
