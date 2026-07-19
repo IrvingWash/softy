@@ -1,7 +1,7 @@
 Obj_Data :: struct {
-    vertices: [..]Vector.Vector3;
-    normals:  [..]Vector.Vector3;
-    uvs:      [..]Vector.Vector2;
+    vertices: [..]My_Math.Vector3;
+    normals:  [..]My_Math.Vector3;
+    uvs:      [..]My_Math.Vector2;
 
     faces:    [..]Triangle.Face;
 }
@@ -22,21 +22,21 @@ parse :: (path: string) -> Obj_Data {
 
         // Parse position
         if starts_with(line, "v ") {
-            vertex: Vector.Vector3;
+            vertex: My_Math.Vector3;
             scan2(line, "v % % %", *vertex.x, *vertex.y, *vertex.z);
             array_add(*obj_data.vertices, vertex);
         }
 
         // Parse normal
         if starts_with(line, "vn ") {
-            normal: Vector.Vector3;
+            normal: My_Math.Vector3;
             scan2(line, "vn % % %", *normal.x, *normal.y, *normal.z);
             array_add(*obj_data.normals, normal);
         }
 
         // Parse uv
         if starts_with(line, "vt ") {
-            uv: Vector.Vector2;
+            uv: My_Math.Vector2;
             scan2(line, "vt % %", *uv.x, *uv.y);
             array_add(*obj_data.uvs, uv);
         }
@@ -83,5 +83,5 @@ destroy :: (obj_data: *Obj_Data) {
 #import "Basic";
 #import "File";
 #import "String";
-Vector   :: #import,file "vector.jai";
+My_Math  :: #import,file "my_math.jai";
 Triangle :: #import,file "triangle.jai";

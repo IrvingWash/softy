@@ -1,5 +1,5 @@
 Triangle :: struct {
-    points: [3]Vector.Vector2;
+    points: [3]My_Math.Vector2;
 
     color: u32;
 
@@ -19,4 +19,4 @@ Face :: struct {
 
 #scope_file
 
-Vector :: #import,file "vector.jai";
+My_Math :: #import,file "my_math.jai";

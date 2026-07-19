@@ -1,11 +1,11 @@
 Mesh :: struct {
-    vertices: [..]Vector.Vector3;
+    vertices: [..]My_Math.Vector3;
     faces:    [..]Triangle.Face;
 
-    rotation: Vector.Vector3;
+    rotation: My_Math.Vector3;
 }
 
-create_mesh :: (vertices: []Vector.Vector3, faces: []Triangle.Face) -> Mesh {
+create_mesh :: (vertices: []My_Math.Vector3, faces: []Triangle.Face) -> Mesh {
     mesh: Mesh;
 
     for vertices {
@@ -29,5 +29,5 @@ destroy_mesh :: (mesh: *Mesh) {
 #scope_file
 
 #import "Basic";
-Vector :: #import,file "vector.jai";
+My_Math :: #import,file "my_math.jai";
 Triangle :: #import,file "triangle.jai";

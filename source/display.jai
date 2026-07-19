@@ -269,5 +269,4 @@ round :: (value: $T, $R: Type = int) -> R
 
 #import "Basic";
 #import "SDL";
-Vector :: #import,file "vector.jai";
 Math :: #import "Math";

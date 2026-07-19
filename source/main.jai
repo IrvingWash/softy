@@ -10,7 +10,7 @@
 #import "SDL";
 
 Display  :: #import,file "display.jai";
-Vector   :: #import,file "vector.jai";
+My_Math  :: #import,file "my_math.jai";
 Triangle :: #import,file "triangle.jai";
 Mesh     :: #import,file "mesh.jai";
 Obj      :: #import,file "obj_parser.jai";
@@ -41,7 +41,7 @@ Cull_Mode :: enum {
 }
 
 Camera :: struct {
-    position: Vector.Vector3 = { 0, 0, 0 };
+    position: My_Math.Vector3 = { 0, 0, 0 };
     fov:      int            = 640;
 }
 
@@ -144,18 +144,18 @@ update :: () {
     state.mesh.rotation.z += 0.01;
 
     for face: state.mesh.faces {
-        face_vertices := Vector.Vector3.[
+        face_vertices := My_Math.Vector3.[
             state.mesh.vertices[face.a - 1],
             state.mesh.vertices[face.b - 1],
             state.mesh.vertices[face.c - 1],
         ];
 
         // Transform
-        transformed_vertices: [3]Vector.Vector3;
+        transformed_vertices: [3]My_Math.Vector3;
         for face_vertex: face_vertices {
-            transformed := Vector.rotate_around_x(face_vertex, state.mesh.rotation.x);
-            transformed = Vector.rotate_around_y(transformed, state.mesh.rotation.y);
-            transformed = Vector.rotate_around_z(transformed, state.mesh.rotation.z);
+            transformed := My_Math.rotate_around_x(face_vertex, state.mesh.rotation.x);
+            transformed = My_Math.rotate_around_y(transformed, state.mesh.rotation.y);
+            transformed = My_Math.rotate_around_z(transformed, state.mesh.rotation.z);
 
             transformed.z += 5;
 
@@ -173,10 +173,10 @@ update :: () {
                 vector_ac := vertex_c - vertex_a;
 
                 // We calculate this ourselves, but .obj files contain normal data
-                normal     := Vector.normalize(Vector.cross(vector_ab, vector_ac));
+                normal     := My_Math.normalize(My_Math.cross(vector_ab, vector_ac));
                 camera_ray := state.camera.position - vertex_a;
 
-                alingment := Vector.dot(normal, camera_ray);
+                alingment := My_Math.dot(normal, camera_ray);
 
                 if alingment <= 0 {
                     continue;
@@ -263,15 +263,15 @@ render :: () {
     Display.finish_drawing();
 }
 
-project_ortho :: (point_3d: Vector.Vector3, fov_factor := 60) -> Vector.Vector2 {
-    return Vector.Vector2.{
+project_ortho :: (point_3d: My_Math.Vector3, fov_factor := 60) -> My_Math.Vector2 {
+    return My_Math.Vector2.{
         x = point_3d.x * fov_factor,
         y = point_3d.y * fov_factor,
     };
 }
 
-project_perspective :: (point: Vector.Vector3, fov_factor := 60) -> Vector.Vector2 {
-    return Vector.Vector2.{
+project_perspective :: (point: My_Math.Vector3, fov_factor := 60) -> My_Math.Vector2 {
+    return My_Math.Vector2.{
         x = (point.x * fov_factor) / point.z,
         y = (point.y * fov_factor) / point.z,
     };
@@ -285,4 +285,4 @@ setup_formatting :: () {
     print_style.default_format_struct.use_newlines_if_long_form = true;
 }
 
-using,only(operator -) Vector;
+using,only(operator -) My_Math;
