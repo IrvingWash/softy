@@ -58,3 +58,29 @@ vec(
   delim: "[",
 )
 $
+
+== Translation Matrix
+
+$
+mat(
+  1, 0, 0, t x;
+  0, 1, 0, t y;
+  0, 0, 1, t z;
+  0, 0, 0, 1;
+  delim: "[",
+)
+
+*
+
+vec(
+  x, y, z, 1,
+  delim: "[",
+)
+
+=
+
+vec(
+  x + t x, y + t y, z + t z, 1,
+  delim: "[",
+)
+$

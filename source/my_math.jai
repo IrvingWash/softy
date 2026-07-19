@@ -38,13 +38,34 @@ Matrix4_Identity :: Matrix4.{
     ],
 };
 
+/*
+| 1 0 0 tx |
+| 0 1 0 ty |
+| 0 0 1 tz |
+| 0 0 0  1 |
+*/
+make_translation_matrix :: (v: Vector3) -> Matrix4 {
+    matrix := Matrix4_Identity;
+
+    matrix.elements[0][3] = v.x;
+    matrix.elements[1][3] = v.y;
+    matrix.elements[2][3] = v.z;
+
+    return matrix;
+}
+
+/*
+| sx 0  0  0 |
+| 0  sy 0  0 |
+| 0  0  sz 0 |
+| 0  0  0  1 |
+*/
 make_scale_matrix :: (v: Vector3) -> Matrix4 {
-    matrix: Matrix4;
+    matrix := Matrix4_Identity;
 
     matrix.elements[0][0] = v.x;
     matrix.elements[1][1] = v.y;
     matrix.elements[2][2] = v.z;
-    matrix.elements[3][3] = 1;
 
     return matrix;
 }

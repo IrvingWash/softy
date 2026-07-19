@@ -139,15 +139,20 @@ update :: () {
 
     array_reset_keeping_memory(*state.triangles_to_render);
 
-    state.mesh.rotation.x += 0.01;
-    state.mesh.rotation.y += 0.01;
-    state.mesh.rotation.z += 0.01;
+    state.mesh.translation.x += 0.01;
+    state.mesh.translation.y += 0.01;
+    state.mesh.translation.z = 5;
 
     state.mesh.scale.x += 0.002;
     state.mesh.scale.y += 0.002;
     state.mesh.scale.z += 0.002;
 
-    scale_matrix := My_Math.make_scale_matrix(state.mesh.scale);
+    state.mesh.rotation.x += 0.01;
+    state.mesh.rotation.y += 0.01;
+    state.mesh.rotation.z += 0.01;
+
+    translation_matrix := My_Math.make_translation_matrix(state.mesh.translation);
+    scale_matrix       := My_Math.make_scale_matrix(state.mesh.scale);
 
     for face: state.mesh.faces {
         face_vertices := My_Math.Vector3.[
@@ -160,8 +165,7 @@ update :: () {
         transformed_vertices: [3]My_Math.Vector4;
         for face_vertex: face_vertices {
             transformed := scale_matrix * face_vertex;
-
-            transformed.z += 5;
+            transformed = translation_matrix * transformed.xyz;
 
             transformed_vertices[it_index] = transformed;
         }
