@@ -84,3 +84,64 @@ vec(
   delim: "[",
 )
 $
+
+== Rotation Matrix
+
+=== Around z
+
+$
+mat(
+  cos(alpha), -sin(alpha), 0, 0;
+  sin(alpha), cos(alpha), 0, 0;
+  0, 0, 1, 0;
+  0, 0, 0, 1;
+  delim: "[",
+)
+
+*
+
+vec(
+  x, y, z, 1,
+  delim: "[",
+)
+$
+
+=== Around x
+
+$
+mat(
+  1, 0, 0, 0;
+  0, cos(alpha), -sin(alpha), 0;
+  0, sin(alpha), cos(alpha), 0;
+  0, 0, 0, 1;
+  delim: "[",
+)
+
+*
+
+vec(
+  x, y, z, 1,
+  delim: "[",
+)
+$
+
+=== Around y
+
+(We invert here a little bit to keep this rotation counter clockwise, as the others)
+
+$
+mat(
+  cos(alpha), 0, sin(alpha), 0;
+  0, 1, 0, 0;
+  -sin(alpha), 0, cos(alpha), 0;
+  0, 0, 0, 1;
+  delim: "[",
+)
+
+*
+
+vec(
+  x, y, z, 1,
+  delim: "[",
+)
+$

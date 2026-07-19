@@ -70,6 +70,66 @@ make_scale_matrix :: (v: Vector3) -> Matrix4 {
     return matrix;
 }
 
+/*
+| c -s 0 0 |
+| s  c 0 0 |
+| 0  0 1 0 |
+| 0  0 0 1 |
+*/
+make_rotation_around_z_matrix :: (angle: float) -> Matrix4 {
+    matrix := Matrix4_Identity;
+
+    c := Math.cos(angle);
+    s := Math.sin(angle);
+
+    matrix.elements[0][0] = c;
+    matrix.elements[0][1] = -s;
+    matrix.elements[1][0] = s;
+    matrix.elements[1][1] = c;
+
+    return matrix;
+}
+
+/*
+| 1 0  0 0 |
+| 0 c -s 0 |
+| 0 s  c 0 |
+| 0 0  0 1 |
+*/
+make_rotation_around_x_matrix :: (angle: float) -> Matrix4 {
+    matrix := Matrix4_Identity;
+
+    c := Math.cos(angle);
+    s := Math.sin(angle);
+
+    matrix.elements[1][1] = c;
+    matrix.elements[1][2] = -s;
+    matrix.elements[2][1] = s;
+    matrix.elements[2][2] = c;
+
+    return matrix;
+}
+
+/*
+|  c 0 s 0 |
+|  0 1 0 0 |
+| -s 0 c 0 |
+|  0 0 0 1 |
+*/
+make_rotation_around_y_matrix :: (angle: float) -> Matrix4 {
+    matrix := Matrix4_Identity;
+
+    c := Math.cos(angle);
+    s := Math.sin(angle);
+
+    matrix.elements[0][0] = c;
+    matrix.elements[0][2] = s;
+    matrix.elements[2][0] = -s;
+    matrix.elements[2][2] = c;
+
+    return matrix;
+}
+
 add :: (a: Vector3, b: Vector3) -> Vector3 {
     return a + b;
 }
