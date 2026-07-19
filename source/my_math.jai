@@ -187,6 +187,10 @@ multiply :: (m: Matrix4, v: Vector3) -> Vector4 {
     return m * v;
 }
 
+multiply :: (a: Matrix4, b: Matrix4) -> Matrix4 {
+    return a * b;
+}
+
 operator * :: (a: Vector3, b: float) -> Vector3 {
     return Vector3.{
         a.x * b,
@@ -208,6 +212,21 @@ operator * :: (m: Matrix4, v: Vector3) -> Vector4 {
     result.y = m.elements[1][0] * v.x + m.elements[1][1] * v.y + m.elements[1][2] * v.z + m.elements[1][3];
     result.z = m.elements[2][0] * v.x + m.elements[2][1] * v.y + m.elements[2][2] * v.z + m.elements[2][3];
     result.w = m.elements[3][0] * v.x + m.elements[3][1] * v.y + m.elements[3][2] * v.z + m.elements[3][3];
+
+    return result;
+}
+
+operator * :: (a: Matrix4, b: Matrix4) -> Matrix4 {
+    result := Matrix4_Identity;
+
+    for i: 0..3 {
+        for j: 0..3 {
+            result.elements[i][j] = a.elements[i][0] * b.elements[0][j]
+                + a.elements[i][1] * b.elements[1][j]
+                + a.elements[i][2] * b.elements[2][j]
+                + a.elements[i][3] * b.elements[3][j];
+        }
+    }
 
     return result;
 }

@@ -157,6 +157,13 @@ update :: () {
     rotation_around_y_matrix := My_Math.make_rotation_around_y_matrix(state.mesh.rotation.y);
     rotation_around_z_matrix := My_Math.make_rotation_around_z_matrix(state.mesh.rotation.z);
 
+    world_matrix := My_Math.Matrix4_Identity;
+    world_matrix = scale_matrix * world_matrix;
+    world_matrix = rotation_around_z_matrix * world_matrix;
+    world_matrix = rotation_around_y_matrix * world_matrix;
+    world_matrix = rotation_around_x_matrix * world_matrix;
+    world_matrix = translation_matrix       * world_matrix;
+
     for face: state.mesh.faces {
         face_vertices := My_Math.Vector3.[
             state.mesh.vertices[face.a - 1],
@@ -167,11 +174,7 @@ update :: () {
         // Transform
         transformed_vertices: [3]My_Math.Vector4;
         for face_vertex: face_vertices {
-            transformed := scale_matrix * face_vertex;
-            transformed = rotation_around_x_matrix * transformed.xyz;
-            transformed = rotation_around_y_matrix * transformed.xyz;
-            transformed = rotation_around_z_matrix * transformed.xyz;
-            transformed = translation_matrix * transformed.xyz;
+            transformed := world_matrix * face_vertex;
 
             transformed_vertices[it_index] = transformed;
         }
