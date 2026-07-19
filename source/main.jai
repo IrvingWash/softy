@@ -157,6 +157,11 @@ update :: () {
     rotation_around_y_matrix := My_Math.make_rotation_around_y_matrix(state.mesh.rotation.y);
     rotation_around_z_matrix := My_Math.make_rotation_around_z_matrix(state.mesh.rotation.z);
 
+    // Order matters!
+    // First      - Scale
+    // Then       - Rotate
+    // At the end - Translate
+    // [T]*[R]*[S]*v (read right to left...)
     world_matrix := My_Math.Matrix4_Identity;
     world_matrix = scale_matrix * world_matrix;
     world_matrix = rotation_around_z_matrix * world_matrix;
