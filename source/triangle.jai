@@ -1,7 +1,7 @@
 Triangle :: struct {
     points: [3]My_Math.Vector4;
 
-    color: u32;
+    color: u32 = 0xFFFFFFFF;
 
     average_depth: float;
 }
@@ -12,7 +12,7 @@ Face :: struct {
     b: int;
     c: int;
 
-    color: u32;
+    color: u32 = 0xFFFFFFFF;
 }
 
 

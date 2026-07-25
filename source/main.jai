@@ -16,6 +16,8 @@ Triangle :: #import,file "triangle.jai";
 Mesh     :: #import,file "mesh.jai";
 Obj      :: #import,file "obj_parser.jai";
 
+#load "light.jai";
+
 State :: struct {
     previous_frame_time_millis: float64;
     is_running: bool;
@@ -26,7 +28,8 @@ State :: struct {
     projection_matrix: My_Math.Matrix4;
 
     camera: Camera;
-    mesh: Mesh.Mesh;
+    mesh:   Mesh.Mesh;
+    sun:    Directional_Light;
 
     triangles_to_render: [..]Triangle.Triangle;
 }
@@ -88,18 +91,6 @@ setup :: () {
     obj := Obj.parse("assets/f22.obj");
     defer Obj.destroy(*obj);
     state.mesh = Mesh.create_mesh(obj.vertices, obj.faces);
-    state.mesh.faces[0].color  = 0xFFFF0000;
-    state.mesh.faces[1].color  = 0xFFFF0000;
-    state.mesh.faces[2].color  = 0xFF00FF00;
-    state.mesh.faces[3].color  = 0xFF00FF00;
-    state.mesh.faces[4].color  = 0xFF0000FF;
-    state.mesh.faces[5].color  = 0xFF0000FF;
-    state.mesh.faces[6].color  = 0xFFFFFF00;
-    state.mesh.faces[7].color  = 0xFFFFFF00;
-    state.mesh.faces[8].color  = 0xFF00FFFF;
-    state.mesh.faces[9].color  = 0xFF00FFFF;
-    state.mesh.faces[10].color = 0xFFFFFFFF;
-    state.mesh.faces[11].color = 0xFFFFFFFF;
 }
 
 destroy :: () {
@@ -149,17 +140,19 @@ update :: () {
 
     array_reset_keeping_memory(*state.triangles_to_render);
 
+    state.mesh.rotation.x += 0.01;
+    state.mesh.translation.z = 5;
+    /*
     state.mesh.translation.x += 0.01;
     state.mesh.translation.y += 0.01;
-    state.mesh.translation.z = 5;
 
     state.mesh.scale.x += 0.002;
     state.mesh.scale.y += 0.002;
     state.mesh.scale.z += 0.002;
 
-    state.mesh.rotation.x += 0.01;
     state.mesh.rotation.y += 0.01;
     state.mesh.rotation.z += 0.01;
+    */
 
     translation_matrix := My_Math.make_translation_matrix(state.mesh.translation);
     scale_matrix       := My_Math.make_scale_matrix(state.mesh.scale);
@@ -179,6 +172,8 @@ update :: () {
     world_matrix = rotation_around_x_matrix * world_matrix;
     world_matrix = translation_matrix       * world_matrix;
 
+    normalized_sun_direction := My_Math.normalize(state.sun.direction);
+
     for face: state.mesh.faces {
         face_vertices := My_Math.Vector3.[
             state.mesh.vertices[face.a - 1],
@@ -194,21 +189,27 @@ update :: () {
             transformed_vertices[it_index] = transformed;
         }
 
+        // We calculate this ourselves, but .obj files contain normal data
+        face_normal: My_Math.Vector3;
+        {
+            vertex_a := transformed_vertices[0].xyz;
+            vertex_b := transformed_vertices[1].xyz;
+            vertex_c := transformed_vertices[2].xyz;
+
+            vector_ab := vertex_b - vertex_a;
+            vector_ac := vertex_c - vertex_a;
+
+            face_normal = My_Math.normalize(My_Math.cross(vector_ab, vector_ac));
+        }
+
         // Cull backfaces
         if #complete state.cull_backfaces == {
             case .BACKFACES;
                 vertex_a := transformed_vertices[0].xyz;
-                vertex_b := transformed_vertices[1].xyz;
-                vertex_c := transformed_vertices[2].xyz;
 
-                vector_ab := vertex_b - vertex_a;
-                vector_ac := vertex_c - vertex_a;
+                camera_ray := state.camera.position - vertex_a; // Why vertex_a exactly?
 
-                // We calculate this ourselves, but .obj files contain normal data
-                normal     := My_Math.normalize(My_Math.cross(vector_ab, vector_ac));
-                camera_ray := state.camera.position - vertex_a;
-
-                alingment := My_Math.dot(normal, camera_ray);
+                alingment := My_Math.dot(face_normal, camera_ray);
 
                 if alingment <= 0 {
                     continue;
@@ -217,9 +218,18 @@ update :: () {
                 // Do nothing
         }
 
+        // Shade
+        face_color: u32;
+        {
+            // We multiply by -1 because we want to represent light's direction as a direction from the light source
+            alignment := -My_Math.dot(face_normal, normalized_sun_direction);
+
+            face_color = apply_light_intensity(face.color, alignment);
+        }
+
         // Project
         projected_triangle: Triangle.Triangle = {
-            color = face.color,
+            color = face_color,
             average_depth = (transformed_vertices[0].z + transformed_vertices[1].z + transformed_vertices[2].z) / 3.0,
         };
         for transformed: transformed_vertices {
