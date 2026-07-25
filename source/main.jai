@@ -85,7 +85,7 @@ setup :: () {
         100,
     );
 
-    obj := Obj.parse("assets/cube.obj");
+    obj := Obj.parse("assets/f22.obj");
     defer Obj.destroy(*obj);
     state.mesh = Mesh.create_mesh(obj.vertices, obj.faces);
     state.mesh.faces[0].color  = 0xFFFF0000;

@@ -1,3 +1,4 @@
+// Column-vectors
 Matrix4 :: struct {
     elements: [4][4]float;
 }

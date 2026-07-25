@@ -205,3 +205,8 @@ vec(
 $
 
 The $1$ in $m_(4 3)$ instead of the $m_(4 4)$, as we are used to, because this allows to store the original (non-normalized) $z$ value in the $w$ component. Because we need the original value for texture mapping and maybe for the depth buffer.
+
+=== FAQ
+
+Q: Why we don't performe the perspective device right in the matrix?
+A: Because between projection and the divide we also may perform clipping.
