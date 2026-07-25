@@ -239,6 +239,9 @@ update :: () {
             projected_triangle.points[it_index].x *= Display.window_width / 2;
             projected_triangle.points[it_index].y *= Display.window_height / 2;
 
+            // Flip y because our pixel buffer has y down (because we start in the upper left corner), but the models have y up
+            projected_triangle.points[it_index].y *= -1;
+
             projected_triangle.points[it_index].x += Display.window_width / 2;
             projected_triangle.points[it_index].y += Display.window_height / 2;
         }

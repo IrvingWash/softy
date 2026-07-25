@@ -1,5 +1,3 @@
-SDL_PIXELFORMAT_ARGB8888 :: 0x16362004;
-
 window_width:  s32 = 800;
 window_height: s32 = 600;
 
@@ -14,6 +12,7 @@ init :: () {
 
     array_resize(*color_buffer, window_width * window_height);
 
+    SDL_PIXELFORMAT_ARGB8888 :: 0x16362004;
     color_buffer_texture = SDL_CreateTexture(
         renderer,
         SDL_PIXELFORMAT_ARGB8888,
