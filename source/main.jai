@@ -6,6 +6,7 @@
 );
 
 #import "Sort";
+Math :: #import "Math";
 
 #import "SDL";
 
@@ -21,6 +22,8 @@ State :: struct {
 
     polygon_mode:   Polygon_Mode;
     cull_backfaces: Cull_Mode;
+
+    projection_matrix: My_Math.Matrix4;
 
     camera: Camera;
     mesh: Mesh.Mesh;
@@ -74,6 +77,13 @@ main :: () {
 
 setup :: () {
     state.is_running = true;
+
+    state.projection_matrix = My_Math.make_perspective_projection_matrix(
+        cast(float, Display.window_height) / cast(float, Display.window_width),
+        Math.PI / 3.0, // 60 degrees in radians,
+        0.1,
+        100,
+    );
 
     obj := Obj.parse("assets/cube.obj");
     defer Obj.destroy(*obj);
@@ -213,12 +223,14 @@ update :: () {
             average_depth = (transformed_vertices[0].z + transformed_vertices[1].z + transformed_vertices[2].z) / 3.0,
         };
         for transformed: transformed_vertices {
-            projected := project_perspective(transformed.xyz, state.camera.fov);
+            projected_triangle.points[it_index] = My_Math.project_vector_perspective(state.projection_matrix, transformed);
 
-            projected.x += Display.window_width / 2;
-            projected.y += Display.window_height / 2;
+            // Why do we do this after using a projection matrix? Because this is handled by the view transform, not by projection
+            projected_triangle.points[it_index].x *= Display.window_width / 2;
+            projected_triangle.points[it_index].y *= Display.window_height / 2;
 
-            projected_triangle.points[it_index] = projected;
+            projected_triangle.points[it_index].x += Display.window_width / 2;
+            projected_triangle.points[it_index].y += Display.window_height / 2;
         }
 
         array_add(*state.triangles_to_render, projected_triangle);
@@ -283,20 +295,6 @@ render :: () {
     }
 
     Display.finish_drawing();
-}
-
-project_ortho :: (point_3d: My_Math.Vector3, fov_factor := 60) -> My_Math.Vector2 {
-    return My_Math.Vector2.{
-        x = point_3d.x * fov_factor,
-        y = point_3d.y * fov_factor,
-    };
-}
-
-project_perspective :: (point: My_Math.Vector3, fov_factor := 60) -> My_Math.Vector2 {
-    return My_Math.Vector2.{
-        x = (point.x * fov_factor) / point.z,
-        y = (point.y * fov_factor) / point.z,
-    };
 }
 
 setup_formatting :: () {

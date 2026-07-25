@@ -1,5 +1,5 @@
 Triangle :: struct {
-    points: [3]My_Math.Vector2;
+    points: [3]My_Math.Vector4;
 
     color: u32;
 

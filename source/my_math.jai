@@ -26,6 +26,7 @@ Vector4 :: struct {
     w: float;
 
     #overlay(x) components: [4]float;
+    #overlay(x) xy:         Vector2;
     #overlay(x) xyz:        Vector3;
 }
 
@@ -216,6 +217,17 @@ operator * :: (m: Matrix4, v: Vector3) -> Vector4 {
     return result;
 }
 
+operator * :: (m: Matrix4, v: Vector4) -> Vector4 {
+    result: Vector4;
+
+    result.x = m.elements[0][0] * v.x + m.elements[0][1] * v.y + m.elements[0][2] * v.z + m.elements[0][3] * v.w;
+    result.y = m.elements[1][0] * v.x + m.elements[1][1] * v.y + m.elements[1][2] * v.z + m.elements[1][3] * v.w;
+    result.z = m.elements[2][0] * v.x + m.elements[2][1] * v.y + m.elements[2][2] * v.z + m.elements[2][3] * v.w;
+    result.w = m.elements[3][0] * v.x + m.elements[3][1] * v.y + m.elements[3][2] * v.z + m.elements[3][3] * v.w;
+
+    return result;
+}
+
 operator * :: (a: Matrix4, b: Matrix4) -> Matrix4 {
     result := Matrix4_Identity;
 
@@ -318,6 +330,52 @@ rotate_around_z :: (vector: Vector3, angle: float) -> Vector3 {
 rotate_around_z :: (v: *Vector3, angle: float) {
     v.x = v.x * Math.cos(angle) - v.y * Math.sin(angle);
     v.y = v.y * Math.cos(angle) + v.x * Math.sin(angle);
+}
+
+/*
+| (height/width) * 1 / tan(fov/2) |        0       |             0            |                   0                  |
+|                 0               | 1 / tan(fov/2) |             0            |                   0                  |
+|                 0               |        0       | z_far / (z_far - z_near) | -(z_far / (z_far - z_near)) * z_near |
+|                 0               |        0       |             1            |                   0                  |
+
+z is normalized between 0 to 1
+Left-handed
+*/
+make_perspective_projection_matrix :: (
+    aspect_ratio_vertical_over_horizontal: float,
+    fov_in_radians:                        float,
+    z_near:                                float,
+    z_far:                                 float,
+) -> Matrix4 {
+    matrix: Matrix4;
+
+    fov_factor := 1.0 / Math.tan(fov_in_radians / 2.0);
+
+    matrix.elements[0][0] = aspect_ratio_vertical_over_horizontal * fov_factor;
+    matrix.elements[1][1] = fov_factor;
+
+    z_scale       := z_far / (z_far - z_near);
+    z_translation := -z_scale * z_near;
+
+    matrix.elements[2][2] = z_scale;
+    matrix.elements[2][3] = z_translation;
+
+    // To keep the z value in the w component
+    matrix.elements[3][2] = 1;
+
+    return matrix;
+}
+
+project_vector_perspective :: (matrix: Matrix4, vector: Vector4) -> Vector4 {
+    result := matrix * vector;
+
+    if result.w != 0 {
+        result.x /= result.w;
+        result.y /= result.w;
+        result.z /= result.w;
+    }
+
+    return result;
 }
 
 
