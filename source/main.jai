@@ -18,7 +18,6 @@ Obj      :: #import,file "obj_parser.jai";
 Texture  :: #import,file "texture.jai";
 
 #load "light.jai";
-#load "../assets/red_brick_texture.jai";
 
 State :: struct {
     previous_frame_time_millis: float64;
@@ -135,7 +134,7 @@ setup :: () {
     state.mesh.faces[11].b_uv = { 0, 0 };
     state.mesh.faces[11].c_uv = { 0, 1 };
 
-    state.mesh_texture = Texture.load(RED_BRICK_TEXTURE, 64, 64);
+    state.mesh_texture = Texture.load("assets/cube.png", flip = true);
 }
 
 destroy :: () {
@@ -190,7 +189,6 @@ update :: () {
 
     array_reset_keeping_memory(*state.triangles_to_render);
 
-    state.mesh.rotation.x += 0.01;
     state.mesh.translation.z = 5;
 
     translation_matrix := My_Math.make_translation_matrix(state.mesh.translation);

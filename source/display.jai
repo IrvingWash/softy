@@ -4,7 +4,7 @@ window_height: s32 = 600;
 window:   *SDL_Window;
 renderer: *SDL_Renderer;
 
-color_buffer: [..]u32; // ARGB
+color_buffer: [..]u32;
 color_buffer_texture: *SDL_Texture;
 
 init :: () {
@@ -13,9 +13,11 @@ init :: () {
     array_resize(*color_buffer, window_width * window_height);
 
     SDL_PIXELFORMAT_ARGB8888 :: 0x16362004;
+    SDL_PIXELFORMAT_RGBA8888 :: 0x16462004;
+    SDL_PIXELFORMAT_ABGR8888 :: 0x16762004;
     color_buffer_texture = SDL_CreateTexture(
         renderer,
-        SDL_PIXELFORMAT_ARGB8888,
+        SDL_PIXELFORMAT_ABGR8888,
         xx SDL_TextureAccess.STREAMING,
         window_width,
         window_height,
