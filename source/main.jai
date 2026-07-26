@@ -180,9 +180,9 @@ update :: () {
 
     for face: state.mesh.faces {
         face_vertices := My_Math.Vector3.[
-            state.mesh.vertices[face.a - 1],
-            state.mesh.vertices[face.b - 1],
-            state.mesh.vertices[face.c - 1],
+            state.mesh.vertices[face.a],
+            state.mesh.vertices[face.b],
+            state.mesh.vertices[face.c],
         ];
 
         // Transform

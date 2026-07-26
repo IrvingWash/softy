@@ -45,8 +45,6 @@ parse :: (path: string) -> Obj_Data {
 
         // Parse face
         if starts_with(line, "f ") {
-            face: Triangle.Face = ---;
-
             vertex_indices:  [3]int;
             texture_indices: [3]int;
             normal_indices:  [3]int;
@@ -59,12 +57,16 @@ parse :: (path: string) -> Obj_Data {
                 *vertex_indices[2], *texture_indices[2], *normal_indices[2],
             );
 
-            face.a = vertex_indices[0];
-            face.b = vertex_indices[1];
-            face.c = vertex_indices[2];
-            face.a_uv = uvs[texture_indices[0] - 1];
-            face.b_uv = uvs[texture_indices[1] - 1];
-            face.c_uv = uvs[texture_indices[2] - 1];
+            face := Triangle.Face.{
+                // Obj's indices start with 1...
+                a = vertex_indices[0] - 1,
+                b = vertex_indices[1] - 1,
+                c = vertex_indices[2] - 1,
+
+                a_uv = uvs[texture_indices[0] - 1],
+                b_uv = uvs[texture_indices[1] - 1],
+                c_uv = uvs[texture_indices[2] - 1],
+            };
 
             array_add(*obj_data.faces, face);
         }
