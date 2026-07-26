@@ -163,9 +163,9 @@ draw_textured_triangle :: (
                     { xx x0, xx y0, z0, w0 },
                     { xx x1, xx y1, z1, w1 },
                     { xx x2, xx y2, z2, w2 },
-                    u0, v0,
-                    u1, v1,
-                    u2, v2,
+                    { u0, v0 },
+                    { u1, v1 },
+                    { u2, v2 },
                     texture,
                 );
             }
@@ -192,9 +192,9 @@ draw_textured_triangle :: (
                     { xx x0, xx y0, z0, w0 },
                     { xx x1, xx y1, z1, w1 },
                     { xx x2, xx y2, z2, w2 },
-                    u0, v0,
-                    u1, v1,
-                    u2, v2,
+                    { u0, v0 },
+                    { u1, v1 },
+                    { u2, v2 },
                     texture,
                 );
             }
@@ -208,9 +208,9 @@ draw_texel :: (
     a: My_Math.Vector4,
     b: My_Math.Vector4,
     c: My_Math.Vector4,
-    u0: float, v0: float,
-    u1: float, v1: float,
-    u2: float, v2: float,
+    a_uv: Texture.Texture_Coordinates,
+    b_uv: Texture.Texture_Coordinates,
+    c_uv: Texture.Texture_Coordinates,
     texture: Texture.Texture,
 ) {
     alpha, beta, gamma := My_Math.calculate_barycentric_weights(a.xy, b.xy, c.xy, { xx x, xx y });
@@ -220,8 +220,8 @@ draw_texel :: (
     {
         interpolated_reciprocal_w := 1  / a.w * alpha + 1  / b.w * beta + 1  / c.w * gamma;
 
-        interpolated_u = (u0 / a.w * alpha + u1 / b.w * beta + u2 / c.w * gamma) / interpolated_reciprocal_w;
-        interpolated_v = (v0 / a.w * alpha + v1 / b.w * beta + v2 / c.w * gamma) / interpolated_reciprocal_w;
+        interpolated_u = (a_uv.u / a.w * alpha + b_uv.u / b.w * beta + c_uv.u / c.w * gamma) / interpolated_reciprocal_w;
+        interpolated_v = (a_uv.v / a.w * alpha + b_uv.v / b.w * beta + c_uv.v / c.w * gamma) / interpolated_reciprocal_w;
     }
 
     texel_x := Math.abs(cast(int, interpolated_u * texture.width));
