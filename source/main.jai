@@ -94,11 +94,11 @@ setup :: () {
         100,
     );
 
-    obj := Obj.parse("assets/cube.obj");
+    obj := Obj.parse("assets/crab.obj");
     defer Obj.destroy(*obj);
     state.mesh = Mesh.create_mesh(obj.vertices, obj.faces);
 
-    state.mesh_texture = Texture.load("assets/cube.png", flip = true);
+    state.mesh_texture = Texture.load("assets/crab.png", flip = true);
 }
 
 destroy :: () {
