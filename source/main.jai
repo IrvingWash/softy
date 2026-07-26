@@ -346,9 +346,9 @@ render :: () {
 
         if want_texture {
             Display.draw_textured_triangle(
-                xx triangle.points[0].x, xx triangle.points[0].y, triangle.uvs[0],
-                xx triangle.points[1].x, xx triangle.points[1].y, triangle.uvs[1],
-                xx triangle.points[2].x, xx triangle.points[2].y, triangle.uvs[2],
+                xx triangle.points[0].x, xx triangle.points[0].y, triangle.uvs[0].u, triangle.uvs[0].v,
+                xx triangle.points[1].x, xx triangle.points[1].y, triangle.uvs[1].u, triangle.uvs[1].v,
+                xx triangle.points[2].x, xx triangle.points[2].y, triangle.uvs[2].u, triangle.uvs[2].v,
                 state.mesh_texture,
             );
         }

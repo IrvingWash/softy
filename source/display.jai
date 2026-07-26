@@ -110,13 +110,72 @@ draw_filled_triangle :: (
 }
 
 draw_textured_triangle :: (
-    x0: s32, y0: s32, uv0: Texture.Texture_Coordinates,
-    x1: s32, y1: s32, uv1: Texture.Texture_Coordinates,
-    x2: s32, y2: s32, uv2: Texture.Texture_Coordinates,
+    x0: s32, y0: s32, u0: float, v0: float,
+    x1: s32, y1: s32, u1: float, v1: float,
+    x2: s32, y2: s32, u2: float, v2: float,
     texture: Texture.Texture,
 ) {
-    // @Todo
-    draw_filled_triangle(x0, y0, x1, y1, x2, y2, 0xFF00FF00);
+    // Sort vertices so y0 is always the the top one, y1 is always the middle one, y2 is always the bottom one.
+    // We need to know exactly where each vertex is vertically.
+    if y0 > y1 {
+        y0,y1 = y1,y0;
+        x0,x1 = x1,x0;
+        u0,u1 = u1,u0;
+        v0,v1 = v1,v0;
+    }
+    if y1 > y2 {
+        y1,y2 = y2,y1;
+        x1,x2 = x2,x1;
+        u1,u2 = u2,u1;
+        v1,v2 = v2,v1;
+    }
+    if y0 > y1 {
+        y0,y1 = y1,y0;
+        x0,x1 = x1,x0;
+        u0,u1 = u1,u0;
+        v0,v1 = v1,v0;
+    }
+
+    // Render the upper part of the triangle (the flat-bottom part)
+    // It's inverse, because the slope is how much y changes for each x, but in this case we want the opposite - how much x changes for each y
+    if y1 - y0 != 0 {
+        left_inverse_slope, right_inverse_slope: float;
+
+        if y1 - y0 != 0 then left_inverse_slope = cast(float, x1 - x0) / Math.abs(cast(float, y1 - y0));
+        if y2 - y0 != 0 then right_inverse_slope = cast(float, x2 - x0) / Math.abs(cast(float, y2 - y0));
+
+        for y: y0..y1 {
+            x_start := x1 + (y - y1) * left_inverse_slope;
+            x_end   := x0 + (y - y0) * right_inverse_slope;
+            if x_end < x_start {
+                x_start,x_end = x_end, x_start;
+            }
+
+            for x: cast(s32, x_start)..cast(s32, x_end)-1 {
+                draw_pixel(x, y, xx ifx x % 2 == 0 && y % 2 == 0 then 0xFFFF0000 else 0xFF0000FF);
+            }
+        }
+    }
+
+    // Render the lower part of the triangle (the flat-top part)
+    if y2 - y1 != 0 {
+        left_inverse_slope, right_inverse_slope: float;
+
+        if y2 - y1 != 0 then left_inverse_slope = cast(float, x2 - x1) / Math.abs(cast(float, y2 - y1));
+        if y2 - y0 != 0 then right_inverse_slope = cast(float, x2 - x0) / Math.abs(cast(float, y2 - y0));
+
+        for y: y1..y2 {
+            x_start := x1 + (y - y1) * left_inverse_slope;
+            x_end   := x0 + (y - y0) * right_inverse_slope;
+            if x_end < x_start {
+                x_start, x_end = x_end, x_start;
+            }
+
+            for x: cast(s32, x_start)..cast(s32, x_end)-1 {
+                draw_pixel(x, y, xx ifx x % 2 == 0 && y % 2 == 0 then 0xFFFF0000 else 0xFF0000FF);
+            }
+        }
+    }
 }
 
 draw_line :: (x0: s32, y0: s32, x1: s32, y1: s32, color: u32) {
@@ -174,16 +233,16 @@ draw_flat_bottom_triangle :: (
         return;
     }
 
-    inv_slop_1 := cast(float, x1 - x0) / cast(float, y1 - y0);
-    inv_slop_2 := cast(float, x2 - x0) / cast(float, y2 - y0);
+    inv_slope_1 := cast(float, x1 - x0) / cast(float, y1 - y0);
+    inv_slope_2 := cast(float, x2 - x0) / cast(float, y2 - y0);
 
     x_start: float = xx x0;
     x_end:   float = xx x0;
     for y: y0..y2 {
         draw_line(xx x_start, xx y, xx x_end, xx y, color);
 
-        x_start += inv_slop_1;
-        x_end   += inv_slop_2;
+        x_start += inv_slope_1;
+        x_end   += inv_slope_2;
     }
 };
 
@@ -197,8 +256,8 @@ draw_flat_top_triangle :: (
         return;
     }
 
-    inv_slop_1 := cast(float, x2 - x0) / cast(float, y2 - y0);
-    inv_slop_2 := cast(float, x2 - x1) / cast(float, y2 - y1);
+    inv_slope_1 := cast(float, x2 - x0) / cast(float, y2 - y0);
+    inv_slope_2 := cast(float, x2 - x1) / cast(float, y2 - y1);
 
     x_start: float = xx x2;
     x_end:   float = xx x2;
@@ -206,8 +265,8 @@ draw_flat_top_triangle :: (
     for < y: y0..y2 {
         draw_line(xx x_start, xx y, xx x_end, xx y, color);
 
-        x_start -= inv_slop_1;
-        x_end -= inv_slop_2;
+        x_start -= inv_slope_1;
+        x_end   -= inv_slope_2;
     }
 };
 
