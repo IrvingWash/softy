@@ -154,8 +154,8 @@ update :: () {
     array_reset_keeping_memory(*state.triangles_to_render);
 
     state.mesh.rotation.x += 0.01;
-    state.mesh.rotation.y += 0.01;
-    state.mesh.rotation.z += 0.01;
+    // state.mesh.rotation.y += 0.01;
+    // state.mesh.rotation.z += 0.01;
     state.mesh.translation.z = 5;
 
     translation_matrix := My_Math.make_translation_matrix(state.mesh.translation);
