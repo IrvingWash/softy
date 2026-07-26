@@ -176,6 +176,12 @@ operator -= :: (a: *Vector3, b: Vector3) {
     a.z -= b.z;
 }
 
+operator - :: (a: Vector2, b: Vector2) -> Vector2 {
+    return Vector2.{
+        a.x - b.x,
+        a.y - b.y,
+    };
+}
 
 multiply :: (a: Vector3, b: float) -> Vector3 {
     return a * b;
@@ -282,6 +288,10 @@ cross :: (a: Vector3, b: Vector3) -> Vector3 {
     };
 }
 
+cross :: (a: Vector2, b: Vector2) -> float {
+    return a.x * b.y - a.y * b.x;
+}
+
 dot :: (a: Vector3, b: Vector3) -> float {
     return a.x * b.x + a.y * b.y + a.z * b.z;
 }
@@ -379,8 +389,37 @@ project_vector_perspective :: (matrix: Matrix4, vector: Vector4) -> Vector4 {
     return result;
 }
 
+round :: (value: $T, $R: Type = int) -> R
+#modify {
+    return IsScalar(T);
+}
+{
+    if value > 0 {
+        return cast(R, value + 0.5);
+    } else {
+        return cast(R, value - 0.5);
+    }
+}
+
+calculate_barycentric_weights :: (a: Vector2, b: Vector2, c: Vector2, p: Vector2) -> alpha: float, beta: float, gamma: float {
+    ac := c - a;
+    ab := b - a;
+    pc := c - p;
+    pb := b - p;
+    ap := p - a;
+
+    doubled_triangle_area := cross(ac, ab); // Because these are 2D vectors, the cross product is already the length.
+
+    alpha := cross(pc, pb) / doubled_triangle_area;
+    beta  := cross(ac, ap) / doubled_triangle_area;
+    gamma := 1.0 - alpha - beta;
+
+    return aplha, beta, gamma;
+}
+
 
 
 #scope_file
 
+#import "Basic";
 Math :: #import "Math";

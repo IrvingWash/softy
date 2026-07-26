@@ -83,3 +83,5 @@ $b times a$ gives a new vector $c$ which goes down.
 
 $ ||a times b|| = ||a|| ||b|| sin theta $
 Where $theta$ is the angle between $a$ and $b$
+
+The length of the cross product is the area of the parallelogram formed by the vectors.

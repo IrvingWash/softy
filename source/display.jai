@@ -193,7 +193,7 @@ draw_line :: (x0: s32, y0: s32, x1: s32, y1: s32, color: u32) {
     current_y: float = cast(float, y0);
 
     for 0..longest_side_length {
-        draw_pixel(round(current_x, s32), round(current_y, s32), color);
+        draw_pixel(My_Math.round(current_x, s32), My_Math.round(current_y, s32), color);
 
         current_x += x_step;
         current_y += y_step;
@@ -323,19 +323,8 @@ clear_color_buffer :: (clear_color: u32) {
     }
 }
 
-round :: (value: $T, $R: Type = int) -> R
-#modify {
-    return IsScalar(T);
-}
-{
-    if value > 0 {
-        return cast(R, value + 0.5);
-    } else {
-        return cast(R, value - 0.5);
-    }
-}
-
 #import "Basic";
 #import "SDL";
 Math :: #import "Math";
 Texture :: #import,file "texture.jai";
+My_Math :: #import,file("my_math.jai");
