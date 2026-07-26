@@ -1,8 +1,5 @@
 Obj_Data :: struct {
     vertices: [..]My_Math.Vector3;
-    normals:  [..]My_Math.Vector3;
-    uvs:      [..]My_Math.Vector2;
-
     faces:    [..]Triangle.Face;
 }
 
@@ -14,6 +11,11 @@ parse :: (path: string) -> Obj_Data {
 
     lines := split(file_content, "\n");
     defer array_free(lines);
+
+    normals: [..]My_Math.Vector3;
+    uvs:     [..]Texture.Texture_Coordinates;
+    defer array_free(normals);
+    defer array_free(uvs);
 
     for line: lines {
         if line == "" || starts_with(line, "#") {
@@ -31,19 +33,20 @@ parse :: (path: string) -> Obj_Data {
         if starts_with(line, "vn ") {
             normal: My_Math.Vector3;
             scan2(line, "vn % % %", *normal.x, *normal.y, *normal.z);
-            array_add(*obj_data.normals, normal);
+            array_add(*normals, normal);
         }
 
         // Parse uv
         if starts_with(line, "vt ") {
-            uv: My_Math.Vector2;
-            scan2(line, "vt % %", *uv.x, *uv.y);
-            array_add(*obj_data.uvs, uv);
+            uv: Texture.Texture_Coordinates;
+            scan2(line, "vt % %", *uv.u, *uv.v);
+            array_add(*uvs, uv);
         }
 
         // Parse face
         if starts_with(line, "f ") {
-            face: Triangle.Face;
+            face: Triangle.Face = ---;
+
             vertex_indices:  [3]int;
             texture_indices: [3]int;
             normal_indices:  [3]int;
@@ -59,6 +62,9 @@ parse :: (path: string) -> Obj_Data {
             face.a = vertex_indices[0];
             face.b = vertex_indices[1];
             face.c = vertex_indices[2];
+            face.a_uv = uvs[texture_indices[0] - 1];
+            face.b_uv = uvs[texture_indices[1] - 1];
+            face.c_uv = uvs[texture_indices[2] - 1];
 
             array_add(*obj_data.faces, face);
         }
@@ -69,8 +75,6 @@ parse :: (path: string) -> Obj_Data {
 
 destroy :: (obj_data: *Obj_Data) {
     array_free(obj_data.vertices);
-    array_free(obj_data.normals);
-    array_free(obj_data.uvs);
     array_free(obj_data.faces);
 
     obj_data.* = {};
@@ -85,3 +89,4 @@ destroy :: (obj_data: *Obj_Data) {
 #import "String";
 My_Math  :: #import,file "my_math.jai";
 Triangle :: #import,file "triangle.jai";
+Texture  :: #import,file "texture.jai";
