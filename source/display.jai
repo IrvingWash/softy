@@ -202,41 +202,6 @@ draw_textured_triangle :: (
     }
 }
 
-// This is super bad because we calculate the same things here again and again for each fragment in a triangle, but the triangle can't change while we are in "draw_textured_triangle"!
-draw_texel :: (
-    x: s32, y: s32,
-    a: My_Math.Vector4,
-    b: My_Math.Vector4,
-    c: My_Math.Vector4,
-    a_uv: Texture.Texture_Coordinates,
-    b_uv: Texture.Texture_Coordinates,
-    c_uv: Texture.Texture_Coordinates,
-    texture: Texture.Texture,
-) {
-    alpha, beta, gamma := My_Math.calculate_barycentric_weights(a.xy, b.xy, c.xy, { xx x, xx y });
-
-    interpolated_u: float;
-    interpolated_v: float;
-    {
-        interpolated_reciprocal_w := 1  / a.w * alpha + 1  / b.w * beta + 1  / c.w * gamma;
-
-        interpolated_u = (a_uv.u / a.w * alpha + b_uv.u / b.w * beta + c_uv.u / c.w * gamma) / interpolated_reciprocal_w;
-        interpolated_v = (a_uv.v / a.w * alpha + b_uv.v / b.w * beta + c_uv.v / c.w * gamma) / interpolated_reciprocal_w;
-    }
-
-    texel_x := Math.abs(cast(int, interpolated_u * texture.width));
-    texel_y := Math.abs(cast(int, interpolated_v * texture.height));
-
-    index := texture.width * texel_y + texel_x;
-    if index > texture.texels.count - 1{
-        return;
-    }
-
-    color := texture.texels[index];
-
-    draw_pixel(x, y, color);
-}
-
 draw_line :: (x0: s32, y0: s32, x1: s32, y1: s32, color: u32) {
     delta_x := x1 - x0;
     delta_y := y1 - y0;
@@ -281,6 +246,42 @@ draw_pixel :: (x: s32, y: s32, color: u32) {
 
 
 #scope_file
+
+// This is super bad because we calculate the same things here again and again for each fragment in a triangle, but the triangle can't change while we are in "draw_textured_triangle"!
+draw_texel :: (
+    x: s32, y: s32,
+    a: My_Math.Vector4,
+    b: My_Math.Vector4,
+    c: My_Math.Vector4,
+    a_uv: Texture.Texture_Coordinates,
+    b_uv: Texture.Texture_Coordinates,
+    c_uv: Texture.Texture_Coordinates,
+    texture: Texture.Texture,
+) {
+    alpha, beta, gamma := My_Math.calculate_barycentric_weights(a.xy, b.xy, c.xy, { xx x, xx y });
+
+    interpolated_u: float;
+    interpolated_v: float;
+    {
+        interpolated_reciprocal_w := 1  / a.w * alpha + 1  / b.w * beta + 1  / c.w * gamma;
+
+        interpolated_u = (a_uv.u / a.w * alpha + b_uv.u / b.w * beta + c_uv.u / c.w * gamma) / interpolated_reciprocal_w;
+        interpolated_v = (a_uv.v / a.w * alpha + b_uv.v / b.w * beta + c_uv.v / c.w * gamma) / interpolated_reciprocal_w;
+    }
+
+    texel_x := Math.abs(cast(int, interpolated_u * texture.width));
+    texel_y := Math.abs(cast(int, interpolated_v * texture.height));
+
+    index := texture.width * texel_y + texel_x;
+    if index > texture.texels.count - 1{
+        return;
+    }
+
+    color := texture.texels[index];
+
+    draw_pixel(x, y, color);
+}
+
 
 draw_flat_bottom_triangle :: (
     x0: int, y0: int,
