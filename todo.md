@@ -1,1 +1,1 @@
-[Textured triangles](https://courses.pikuma.com/courses/take/learn-computer-graphics-programming/lessons/11821965-textured-triangles)
+[Perspective correct interpolation code](https://courses.pikuma.com/courses/take/learn-computer-graphics-programming/lessons/11822193-perspective-correct-interpolation-code)
