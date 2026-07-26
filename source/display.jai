@@ -98,7 +98,7 @@ draw_filled_triangle :: (
 
     // The triangle is neither flat-bottom nor flat-top
 
-    // Find the other end of the middle separator (the firt end is x1 y1)
+    // Find the other end of the middle separator (the first end is x1 y1)
     My := y1;
     Mx := cast(float, (x2 - x0) * (y1 - y0)) / cast(float, y2 - y0) + x0;
 
@@ -152,7 +152,16 @@ draw_textured_triangle :: (
             }
 
             for x: cast(s32, x_start)..cast(s32, x_end)-1 {
-                draw_pixel(x, y, xx ifx x % 2 == 0 && y % 2 == 0 then 0xFFFF0000 else 0xFF0000FF);
+                draw_texel(
+                    x, y,
+                    { xx x0, xx y0 },
+                    { xx x1, xx y1 },
+                    { xx x2, xx y2 },
+                    u0, v0,
+                    u1, v1,
+                    u2, v2,
+                    texture,
+                );
             }
         }
     }
@@ -172,10 +181,47 @@ draw_textured_triangle :: (
             }
 
             for x: cast(s32, x_start)..cast(s32, x_end)-1 {
-                draw_pixel(x, y, xx ifx x % 2 == 0 && y % 2 == 0 then 0xFFFF0000 else 0xFF0000FF);
+                draw_texel(
+                    x, y,
+                    { xx x0, xx y0 },
+                    { xx x1, xx y1 },
+                    { xx x2, xx y2 },
+                    u0, v0,
+                    u1, v1,
+                    u2, v2,
+                    texture,
+                );
             }
         }
     }
+}
+
+draw_texel :: (
+    x: s32, y: s32,
+    a: My_Math.Vector2,
+    b: My_Math.Vector2,
+    c: My_Math.Vector2,
+    u0: float, v0: float,
+    u1: float, v1: float,
+    u2: float, v2: float,
+    texture: Texture.Texture,
+) {
+    alpha, beta, gamma := My_Math.calculate_barycentric_weights(a, b, c, { xx x, xx y });
+
+    interpolated_u := u0 * alpha + u1 * beta + u2 * gamma;
+    interpolated_v := v0 * alpha + v1 * beta + v2 * gamma;
+
+    texel_x := Math.abs(cast(int, interpolated_u * texture.width));
+    texel_y := Math.abs(cast(int, interpolated_v * texture.height));
+
+    index := texture.width * texel_y + texel_x;
+    if index > texture.texels.count - 1{
+        return;
+    }
+
+    color := texture.texels[index];
+
+    draw_pixel(x, y, color);
 }
 
 draw_line :: (x0: s32, y0: s32, x1: s32, y1: s32, color: u32) {

@@ -1,7 +1,7 @@
 Texture :: struct {
     width:  u32;
     height: u32;
-    data:   [..]u32;
+    texels:   [..]u32;
 }
 
 Texture_Coordinates :: struct {
@@ -15,16 +15,14 @@ load :: (data: []u8, width: u32, height: u32) -> Texture {
         height = height,
     };
 
-    array_resize(*texture.data, data.count);
-    for texel: data {
-        array_add(*texture.data, texel);
-    }
+    array_resize(*texture.texels, width * height);
+    memcpy(texture.texels.data, data.data, data.count);
 
     return texture;
 }
 
 destroy :: (texture: *Texture) {
-    array_free(texture.data);
+    array_free(texture.texels);
 
     texture.* = {};
 }

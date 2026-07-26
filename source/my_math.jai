@@ -414,7 +414,7 @@ calculate_barycentric_weights :: (a: Vector2, b: Vector2, c: Vector2, p: Vector2
     beta  := cross(ac, ap) / doubled_triangle_area;
     gamma := 1.0 - alpha - beta;
 
-    return aplha, beta, gamma;
+    return alpha, beta, gamma;
 }
 
 

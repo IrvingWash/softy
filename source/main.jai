@@ -98,42 +98,42 @@ setup :: () {
     obj := Obj.parse("assets/cube.obj");
     defer Obj.destroy(*obj);
     state.mesh = Mesh.create_mesh(obj.vertices, obj.faces);
-    state.mesh.faces[0].a_uv  = { 0, 0 };
-    state.mesh.faces[0].b_uv  = { 0, 1 };
+    state.mesh.faces[0].a_uv  = { 1, 0 };
+    state.mesh.faces[0].b_uv  = { 0, 0 };
     state.mesh.faces[0].c_uv  = { 1, 1 };
-    state.mesh.faces[1].a_uv  = { 0, 0 };
-    state.mesh.faces[1].b_uv  = { 1, 1 };
-    state.mesh.faces[1].c_uv  = { 1, 0 };
-    state.mesh.faces[2].a_uv  = { 0, 0 };
-    state.mesh.faces[2].b_uv  = { 0, 1 };
+    state.mesh.faces[1].a_uv  = { 1, 1 };
+    state.mesh.faces[1].b_uv  = { 0, 0 };
+    state.mesh.faces[1].c_uv  = { 0, 1 };
+    state.mesh.faces[2].a_uv  = { 1, 0 };
+    state.mesh.faces[2].b_uv  = { 0, 0 };
     state.mesh.faces[2].c_uv  = { 1, 1 };
-    state.mesh.faces[3].a_uv  = { 0, 0 };
-    state.mesh.faces[3].b_uv  = { 1, 1 };
-    state.mesh.faces[3].c_uv  = { 1, 0 };
-    state.mesh.faces[4].a_uv  = { 0, 0 };
-    state.mesh.faces[4].b_uv  = { 0, 1 };
-    state.mesh.faces[4].c_uv  = { 1, 1 };
+    state.mesh.faces[3].a_uv  = { 1, 1 };
+    state.mesh.faces[3].b_uv  = { 0, 0 };
+    state.mesh.faces[3].c_uv  = { 0, 1 };
+    state.mesh.faces[4].a_uv  = { 0, 1 };
+    state.mesh.faces[4].b_uv  = { 1, 1 };
+    state.mesh.faces[4].c_uv  = { 0, 0 };
     state.mesh.faces[5].a_uv  = { 0, 0 };
     state.mesh.faces[5].b_uv  = { 1, 1 };
     state.mesh.faces[5].c_uv  = { 1, 0 };
-    state.mesh.faces[6].a_uv  = { 0, 0 };
-    state.mesh.faces[6].b_uv  = { 0, 1 };
+    state.mesh.faces[6].a_uv  = { 1, 0 };
+    state.mesh.faces[6].b_uv  = { 0, 0 };
     state.mesh.faces[6].c_uv  = { 1, 1 };
-    state.mesh.faces[7].a_uv  = { 0, 0 };
-    state.mesh.faces[7].b_uv  = { 1, 1 };
-    state.mesh.faces[7].c_uv  = { 1, 0 };
-    state.mesh.faces[8].a_uv  = { 0, 0 };
-    state.mesh.faces[8].b_uv  = { 0, 1 };
+    state.mesh.faces[7].a_uv  = { 1, 1 };
+    state.mesh.faces[7].b_uv  = { 0, 0 };
+    state.mesh.faces[7].c_uv  = { 0, 1 };
+    state.mesh.faces[8].a_uv  = { 1, 0 };
+    state.mesh.faces[8].b_uv  = { 0, 0 };
     state.mesh.faces[8].c_uv  = { 1, 1 };
-    state.mesh.faces[9].a_uv  = { 0, 0 };
-    state.mesh.faces[9].b_uv  = { 1, 1 };
-    state.mesh.faces[9].c_uv  = { 1, 0 };
-    state.mesh.faces[10].a_uv = { 0, 0 };
-    state.mesh.faces[10].b_uv = { 0, 1 };
+    state.mesh.faces[9].a_uv  = { 1, 1 };
+    state.mesh.faces[9].b_uv  = { 0, 0 };
+    state.mesh.faces[9].c_uv  = { 0, 1 };
+    state.mesh.faces[10].a_uv = { 1, 0 };
+    state.mesh.faces[10].b_uv = { 0, 0 };
     state.mesh.faces[10].c_uv = { 1, 1 };
-    state.mesh.faces[11].a_uv = { 0, 0 };
-    state.mesh.faces[11].b_uv = { 1, 1 };
-    state.mesh.faces[11].c_uv = { 1, 0 };
+    state.mesh.faces[11].a_uv = { 1, 1 };
+    state.mesh.faces[11].b_uv = { 0, 0 };
+    state.mesh.faces[11].c_uv = { 0, 1 };
 
     state.mesh_texture = Texture.load(RED_BRICK_TEXTURE, 64, 64);
 }
@@ -192,17 +192,6 @@ update :: () {
 
     state.mesh.rotation.x += 0.01;
     state.mesh.translation.z = 5;
-    /*
-    state.mesh.translation.x += 0.01;
-    state.mesh.translation.y += 0.01;
-
-    state.mesh.scale.x += 0.002;
-    state.mesh.scale.y += 0.002;
-    state.mesh.scale.z += 0.002;
-
-    state.mesh.rotation.y += 0.01;
-    state.mesh.rotation.z += 0.01;
-    */
 
     translation_matrix := My_Math.make_translation_matrix(state.mesh.translation);
     scale_matrix       := My_Math.make_scale_matrix(state.mesh.scale);
