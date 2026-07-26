@@ -109,6 +109,16 @@ draw_filled_triangle :: (
     draw_flat_top_triangle(x1, y1, xx Mx, My, x2, y2, color);
 }
 
+draw_textured_triangle :: (
+    x0: s32, y0: s32, uv0: Texture.Texture_Coordinates,
+    x1: s32, y1: s32, uv1: Texture.Texture_Coordinates,
+    x2: s32, y2: s32, uv2: Texture.Texture_Coordinates,
+    texture: Texture.Texture,
+) {
+    // @Todo
+    draw_filled_triangle(x0, y0, x1, y1, x2, y2, 0xFF00FF00);
+}
+
 draw_line :: (x0: s32, y0: s32, x1: s32, y1: s32, color: u32) {
     delta_x := x1 - x0;
     delta_y := y1 - y0;
@@ -269,3 +279,4 @@ round :: (value: $T, $R: Type = int) -> R
 #import "Basic";
 #import "SDL";
 Math :: #import "Math";
+Texture :: #import,file "texture.jai";

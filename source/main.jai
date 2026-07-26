@@ -15,8 +15,10 @@ My_Math  :: #import,file "my_math.jai";
 Triangle :: #import,file "triangle.jai";
 Mesh     :: #import,file "mesh.jai";
 Obj      :: #import,file "obj_parser.jai";
+Texture  :: #import,file "texture.jai";
 
 #load "light.jai";
+#load "../assets/red_brick_texture.jai";
 
 State :: struct {
     previous_frame_time_millis: float64;
@@ -28,7 +30,10 @@ State :: struct {
     projection_matrix: My_Math.Matrix4;
 
     camera: Camera;
-    mesh:   Mesh.Mesh;
+
+    mesh:         Mesh.Mesh;
+    mesh_texture: Texture.Texture;
+
     sun:    Directional_Light;
 
     triangles_to_render: [..]Triangle.Triangle;
@@ -39,6 +44,8 @@ Polygon_Mode :: enum {
     WIREFRAME;
     FACES;
     FACES_AND_WIREFRAME;
+    TEXTURE;
+    TEXTURE_AND_WIREFRAME;
 }
 
 Cull_Mode :: enum {
@@ -88,15 +95,54 @@ setup :: () {
         100,
     );
 
-    obj := Obj.parse("assets/f22.obj");
+    obj := Obj.parse("assets/cube.obj");
     defer Obj.destroy(*obj);
     state.mesh = Mesh.create_mesh(obj.vertices, obj.faces);
+    state.mesh.faces[0].a_uv  = { 0, 0 };
+    state.mesh.faces[0].b_uv  = { 0, 1 };
+    state.mesh.faces[0].c_uv  = { 1, 1 };
+    state.mesh.faces[1].a_uv  = { 0, 0 };
+    state.mesh.faces[1].b_uv  = { 1, 1 };
+    state.mesh.faces[1].c_uv  = { 1, 0 };
+    state.mesh.faces[2].a_uv  = { 0, 0 };
+    state.mesh.faces[2].b_uv  = { 0, 1 };
+    state.mesh.faces[2].c_uv  = { 1, 1 };
+    state.mesh.faces[3].a_uv  = { 0, 0 };
+    state.mesh.faces[3].b_uv  = { 1, 1 };
+    state.mesh.faces[3].c_uv  = { 1, 0 };
+    state.mesh.faces[4].a_uv  = { 0, 0 };
+    state.mesh.faces[4].b_uv  = { 0, 1 };
+    state.mesh.faces[4].c_uv  = { 1, 1 };
+    state.mesh.faces[5].a_uv  = { 0, 0 };
+    state.mesh.faces[5].b_uv  = { 1, 1 };
+    state.mesh.faces[5].c_uv  = { 1, 0 };
+    state.mesh.faces[6].a_uv  = { 0, 0 };
+    state.mesh.faces[6].b_uv  = { 0, 1 };
+    state.mesh.faces[6].c_uv  = { 1, 1 };
+    state.mesh.faces[7].a_uv  = { 0, 0 };
+    state.mesh.faces[7].b_uv  = { 1, 1 };
+    state.mesh.faces[7].c_uv  = { 1, 0 };
+    state.mesh.faces[8].a_uv  = { 0, 0 };
+    state.mesh.faces[8].b_uv  = { 0, 1 };
+    state.mesh.faces[8].c_uv  = { 1, 1 };
+    state.mesh.faces[9].a_uv  = { 0, 0 };
+    state.mesh.faces[9].b_uv  = { 1, 1 };
+    state.mesh.faces[9].c_uv  = { 1, 0 };
+    state.mesh.faces[10].a_uv = { 0, 0 };
+    state.mesh.faces[10].b_uv = { 0, 1 };
+    state.mesh.faces[10].c_uv = { 1, 1 };
+    state.mesh.faces[11].a_uv = { 0, 0 };
+    state.mesh.faces[11].b_uv = { 1, 1 };
+    state.mesh.faces[11].c_uv = { 1, 0 };
+
+    state.mesh_texture = Texture.load(RED_BRICK_TEXTURE, 64, 64);
 }
 
 destroy :: () {
     array_free(state.triangles_to_render);
 
     Mesh.destroy_mesh(*state.mesh);
+    Texture.destroy(*state.mesh_texture);
 }
 
 process_input :: () {
@@ -116,6 +162,10 @@ process_input :: () {
                     state.polygon_mode = .FACES;
                 case SDLK_4;
                     state.polygon_mode = .FACES_AND_WIREFRAME;
+                case SDLK_5;
+                    state.polygon_mode = .TEXTURE;
+                case SDLK_6;
+                    state.polygon_mode = .TEXTURE_AND_WIREFRAME;
                 case SDLK_c;
                     state.cull_backfaces = .BACKFACES;
                 case SDLK_d;
@@ -231,6 +281,9 @@ update :: () {
         projected_triangle: Triangle.Triangle = {
             color = face_color,
             average_depth = (transformed_vertices[0].z + transformed_vertices[1].z + transformed_vertices[2].z) / 3.0,
+            uvs[0] = face.a_uv,
+            uvs[1] = face.b_uv,
+            uvs[2] = face.c_uv,
         };
         for transformed: transformed_vertices {
             projected_triangle.points[it_index] = My_Math.project_vector_perspective(state.projection_matrix, transformed);
@@ -261,6 +314,7 @@ render :: () {
     want_vertices: bool;
     want_wireframe: bool;
     want_faces: bool;
+    want_texture: bool;
 
     if #complete state.polygon_mode == {
         case .WIREFRAME_AND_VERTICES;
@@ -273,6 +327,11 @@ render :: () {
         case .FACES_AND_WIREFRAME;
             want_faces     = true;
             want_wireframe = true;
+        case .TEXTURE;
+            want_texture = true;
+        case .TEXTURE_AND_WIREFRAME;
+            want_texture   = true;
+            want_wireframe = true;
     }
 
     for triangle: state.triangles_to_render {
@@ -282,6 +341,15 @@ render :: () {
                 xx triangle.points[1].x, xx triangle.points[1].y,
                 xx triangle.points[2].x, xx triangle.points[2].y,
                 triangle.color,
+            );
+        }
+
+        if want_texture {
+            Display.draw_textured_triangle(
+                xx triangle.points[0].x, xx triangle.points[0].y, triangle.uvs[0],
+                xx triangle.points[1].x, xx triangle.points[1].y, triangle.uvs[1],
+                xx triangle.points[2].x, xx triangle.points[2].y, triangle.uvs[2],
+                state.mesh_texture,
             );
         }
 

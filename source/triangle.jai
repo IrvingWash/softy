@@ -3,6 +3,8 @@ Triangle :: struct {
 
     color: u32 = 0xFFFFFFFF;
 
+    uvs: [3]Texture.Texture_Coordinates;
+
     average_depth: float;
 }
 
@@ -12,6 +14,10 @@ Face :: struct {
     b: int;
     c: int;
 
+    a_uv: Texture.Texture_Coordinates;
+    b_uv: Texture.Texture_Coordinates;
+    c_uv: Texture.Texture_Coordinates;
+
     color: u32 = 0xFFFFFFFF;
 }
 
@@ -19,4 +25,5 @@ Face :: struct {
 
 #scope_file
 
+Texture :: #import,file "texture.jai";
 My_Math :: #import,file "my_math.jai";
