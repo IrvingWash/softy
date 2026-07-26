@@ -110,9 +110,9 @@ draw_filled_triangle :: (
 }
 
 draw_textured_triangle :: (
-    x0: s32, y0: s32, u0: float, v0: float,
-    x1: s32, y1: s32, u1: float, v1: float,
-    x2: s32, y2: s32, u2: float, v2: float,
+    x0: s32, y0: s32, z0: float, w0: float, u0: float, v0: float,
+    x1: s32, y1: s32, z1: float, w1: float, u1: float, v1: float,
+    x2: s32, y2: s32, z2: float, w2: float, u2: float, v2: float,
     texture: Texture.Texture,
 ) {
     // Sort vertices so y0 is always the the top one, y1 is always the middle one, y2 is always the bottom one.
@@ -120,18 +120,24 @@ draw_textured_triangle :: (
     if y0 > y1 {
         y0,y1 = y1,y0;
         x0,x1 = x1,x0;
+        z0,z1 = z1,z0;
+        w0,w1 = w1,w0;
         u0,u1 = u1,u0;
         v0,v1 = v1,v0;
     }
     if y1 > y2 {
         y1,y2 = y2,y1;
         x1,x2 = x2,x1;
+        z1,z2 = z2,z1;
+        w1,w2 = w2,w1;
         u1,u2 = u2,u1;
         v1,v2 = v2,v1;
     }
     if y0 > y1 {
         y0,y1 = y1,y0;
         x0,x1 = x1,x0;
+        z0,z1 = z1,z0;
+        w0,w1 = w1,w0;
         u0,u1 = u1,u0;
         v0,v1 = v1,v0;
     }
@@ -154,9 +160,9 @@ draw_textured_triangle :: (
             for x: cast(s32, x_start)..cast(s32, x_end)-1 {
                 draw_texel(
                     x, y,
-                    { xx x0, xx y0 },
-                    { xx x1, xx y1 },
-                    { xx x2, xx y2 },
+                    { xx x0, xx y0, z0, w0 },
+                    { xx x1, xx y1, z1, w1 },
+                    { xx x2, xx y2, z2, w2 },
                     u0, v0,
                     u1, v1,
                     u2, v2,
@@ -183,9 +189,9 @@ draw_textured_triangle :: (
             for x: cast(s32, x_start)..cast(s32, x_end)-1 {
                 draw_texel(
                     x, y,
-                    { xx x0, xx y0 },
-                    { xx x1, xx y1 },
-                    { xx x2, xx y2 },
+                    { xx x0, xx y0, z0, w0 },
+                    { xx x1, xx y1, z1, w1 },
+                    { xx x2, xx y2, z2, w2 },
                     u0, v0,
                     u1, v1,
                     u2, v2,
@@ -196,20 +202,27 @@ draw_textured_triangle :: (
     }
 }
 
+// This is super bad because we calculate the same things here again and again for each fragment in a triangle, but the triangle can't change while we are in "draw_textured_triangle"!
 draw_texel :: (
     x: s32, y: s32,
-    a: My_Math.Vector2,
-    b: My_Math.Vector2,
-    c: My_Math.Vector2,
+    a: My_Math.Vector4,
+    b: My_Math.Vector4,
+    c: My_Math.Vector4,
     u0: float, v0: float,
     u1: float, v1: float,
     u2: float, v2: float,
     texture: Texture.Texture,
 ) {
-    alpha, beta, gamma := My_Math.calculate_barycentric_weights(a, b, c, { xx x, xx y });
+    alpha, beta, gamma := My_Math.calculate_barycentric_weights(a.xy, b.xy, c.xy, { xx x, xx y });
 
-    interpolated_u := u0 * alpha + u1 * beta + u2 * gamma;
-    interpolated_v := v0 * alpha + v1 * beta + v2 * gamma;
+    interpolated_u: float;
+    interpolated_v: float;
+    {
+        interpolated_reciprocal_w := 1  / a.w * alpha + 1  / b.w * beta + 1  / c.w * gamma;
+
+        interpolated_u = (u0 / a.w * alpha + u1 / b.w * beta + u2 / c.w * gamma) / interpolated_reciprocal_w;
+        interpolated_v = (v0 / a.w * alpha + v1 / b.w * beta + v2 / c.w * gamma) / interpolated_reciprocal_w;
+    }
 
     texel_x := Math.abs(cast(int, interpolated_u * texture.width));
     texel_y := Math.abs(cast(int, interpolated_v * texture.height));
