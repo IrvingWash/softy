@@ -157,6 +157,31 @@ mat(
 )
 $
 
+== Look-at function
+Left-handed!
+```c
+mat4_t mat4_look_at(vec3_t eye, vec3_t target, vec3_t up) {
+  vec3_t z = vec3_normalize(target - eye);      // Forward (z) vector
+  vec3_t x = vec3_normalize(vec3_cross(up, z)); // Right (x) vector
+  vec3_t y = vec3_cross(z, x);                  // Up (y) vector
+
+  mat4_t view_matrix = {{
+    { x.x, x.y, x.z, -vec3_dot(x, eye), },
+    { y.x, y.y, y.z, -vec3_dot(y, eye), },
+    { z.x, z.y, z.z, -vec3_dot(z, eye), },
+    { 0, 0, 0, 1, },
+  }};
+
+  return view_matrix;
+}
+```
+
+`vec3_t z` is the vector from eye to target.
+`vec3_t x` is the perpendicular of the reference `up` vector and the `z`.
+`vec3_t y` is the perpendicular between `z` and `xz`.
+
+`up` is the "world up" (usually $mat(0,1,0)$)
+
 ==== Matrix inversion
 
 Matrix inversion practically can be applied as "the opposite" operation. Say, we rotated a mesh to the right using $M_r$. If we, after that rotation, use $M^(-1)_r$ on that mesh, it will be rotated back.

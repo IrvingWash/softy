@@ -18,6 +18,7 @@ Obj      :: #import,file "obj_parser.jai";
 Texture  :: #import,file "texture.jai";
 
 #load "light.jai";
+#load "camera.jai";
 
 State :: struct {
     previous_frame_time_millis: float64;
@@ -27,6 +28,7 @@ State :: struct {
     cull_backfaces: Cull_Mode;
 
     projection_matrix: My_Math.Matrix4;
+    view_matrix:       My_Math.Matrix4;
 
     camera: Camera;
 
@@ -50,13 +52,6 @@ Polygon_Mode :: enum {
 Cull_Mode :: enum {
     BACKFACES;
     NONE;
-}
-
-Camera :: struct {
-    position:  My_Math.Vector3 = { 0, 0, 0 };
-    direction: My_Math.Vector3;
-
-    fov: float = Math.PI / 3.0; // 60 degrees in radians,
 }
 
 FPS: float : 60;
@@ -96,11 +91,11 @@ setup :: () {
         100,
     );
 
-    obj := Obj.parse("assets/drone.obj");
+    obj := Obj.parse("assets/efa.obj");
     defer Obj.destroy(*obj);
     state.mesh = Mesh.create_mesh(obj.vertices, obj.faces);
 
-    state.mesh_texture = Texture.load("assets/drone.png", flip = true);
+    state.mesh_texture = Texture.load("assets/efa.png", flip = true);
 }
 
 destroy :: () {
@@ -153,12 +148,11 @@ update :: () {
         state.previous_frame_time_millis = seconds_since_init() * 1000;
     }
 
-    array_reset_keeping_memory(*state.triangles_to_render);
+    state.camera.position.x += 0.01;
+    state.camera.position.y += 0.01;
+    state.view_matrix = My_Math.make_look_at_matrix(state.camera.position, state.mesh.translation, { 0, 1, 0 });
 
-    state.mesh.rotation.x += 0.01;
-    // state.mesh.rotation.y += 0.01;
-    // state.mesh.rotation.z += 0.01;
-    state.mesh.translation.z = 5;
+    array_reset_keeping_memory(*state.triangles_to_render);
 
     translation_matrix := My_Math.make_translation_matrix(state.mesh.translation);
     scale_matrix       := My_Math.make_scale_matrix(state.mesh.scale);
@@ -191,6 +185,7 @@ update :: () {
         transformed_vertices: [3]My_Math.Vector4;
         for face_vertex: face_vertices {
             transformed := world_matrix * face_vertex;
+            transformed = state.view_matrix * transformed;
 
             transformed_vertices[it_index] = transformed;
         }
@@ -212,13 +207,11 @@ update :: () {
         if #complete state.cull_backfaces == {
             case .BACKFACES;
                 vertex_a := transformed_vertices[0].xyz;
-
-                camera_ray := state.camera.position - vertex_a; // Why vertex_a exactly?
-
-                alingment := My_Math.dot(face_normal, camera_ray);
+                origin_ray := My_Math.Vector3.{} - vertex_a; // Why vertex_a exactly?
+                alingment := My_Math.dot(face_normal, origin_ray);
 
                 if alingment <= 0 {
-                    continue;
+                    continue; // reset the loop, so we don't add this triangle to the list of triangles to be rendered.
                 }
             case .NONE;
                 // Do nothing

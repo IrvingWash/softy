@@ -417,7 +417,35 @@ calculate_barycentric_weights :: (a: Vector2, b: Vector2, c: Vector2, p: Vector2
     return alpha, beta, gamma;
 }
 
+// | x.x, x.y, x.z, -dot(x,eye) | //
+// | y.x, y.y, y.z, -dot(y,eye) | //
+// | z.x, z.y, z.z, -dot(z,eye) | //
+// |  0    0    0        1      | //
+// Left-handed
+make_look_at_matrix :: (eye: Vector3, target: Vector3, world_up: Vector3) -> Matrix4 {
+    z := normalize(target - eye);       // Vector pointing from eye to target
+    x := normalize(cross(world_up, z)); // Perpendicular vector to world_up and z
+    y := cross(z, x);                   // Perpendicular vector to z and x
 
+    matrix := Matrix4_Identity;
+
+    matrix.elements[0][0] = x.x;
+    matrix.elements[0][1] = x.y;
+    matrix.elements[0][2] = x.z;
+    matrix.elements[0][3] = -dot(x, eye);
+
+    matrix.elements[1][0] = y.x;
+    matrix.elements[1][1] = y.y;
+    matrix.elements[1][2] = y.z;
+    matrix.elements[1][3] = -dot(y, eye);
+
+    matrix.elements[2][0] = z.x;
+    matrix.elements[2][1] = z.y;
+    matrix.elements[2][2] = z.z;
+    matrix.elements[2][3] = -dot(z, eye);
+
+    return matrix;
+}
 
 #scope_file
 
