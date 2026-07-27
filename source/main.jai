@@ -91,11 +91,11 @@ setup :: () {
         100,
     );
 
-    obj := Obj.parse("assets/efa.obj");
+    obj := Obj.parse("assets/cube.obj");
     defer Obj.destroy(*obj);
     state.mesh = Mesh.create_mesh(obj.vertices, obj.faces);
 
-    state.mesh_texture = Texture.load("assets/efa.png", flip = true);
+    state.mesh_texture = Texture.load("assets/cube.png", flip = true);
 }
 
 destroy :: () {
@@ -137,25 +137,27 @@ process_input :: () {
 }
 
 update :: () {
-    delta_time: float64;
+    delta_time: float;
     { // Control FPS
         current_frame_time_millis := seconds_since_init() * 1000;
         time_to_wait := FRAME_TARGET_TIME_MILLIS - (current_frame_time_millis - state.previous_frame_time_millis);
         if time_to_wait > 0 && time_to_wait <= FRAME_TARGET_TIME_MILLIS {
             sleep_milliseconds(xx time_to_wait);
         }
-        delta_time = seconds_since_init() * 1000 - state.previous_frame_time_millis;
+        delta_time_millis := seconds_since_init() * 1000 - state.previous_frame_time_millis;
         state.previous_frame_time_millis = seconds_since_init() * 1000;
+
+        delta_time = xx (delta_time_millis / 1000.0); // converting to seconds
     }
 
-    state.camera.position.x += 0.01;
-    state.camera.position.y += 0.01;
+    state.camera.position.x += 5 * delta_time;
+    state.camera.position.y += 5 * delta_time;
     state.view_matrix = My_Math.make_look_at_matrix(state.camera.position, state.mesh.translation, { 0, 1, 0 });
 
     array_reset_keeping_memory(*state.triangles_to_render);
 
-    translation_matrix := My_Math.make_translation_matrix(state.mesh.translation);
-    scale_matrix       := My_Math.make_scale_matrix(state.mesh.scale);
+    translation_matrix       := My_Math.make_translation_matrix(state.mesh.translation);
+    scale_matrix             := My_Math.make_scale_matrix(state.mesh.scale);
     rotation_around_x_matrix := My_Math.make_rotation_around_x_matrix(state.mesh.rotation.x);
     rotation_around_y_matrix := My_Math.make_rotation_around_y_matrix(state.mesh.rotation.y);
     rotation_around_z_matrix := My_Math.make_rotation_around_z_matrix(state.mesh.rotation.z);
@@ -166,7 +168,7 @@ update :: () {
     // At the end - Translate
     // [T]*[R]*[S]*v (read right to left...)
     world_matrix := My_Math.Matrix4_Identity;
-    world_matrix = scale_matrix * world_matrix;
+    world_matrix = scale_matrix             * world_matrix;
     world_matrix = rotation_around_z_matrix * world_matrix;
     world_matrix = rotation_around_y_matrix * world_matrix;
     world_matrix = rotation_around_x_matrix * world_matrix;
