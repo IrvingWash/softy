@@ -94,11 +94,11 @@ setup :: () {
         100,
     );
 
-    obj := Obj.parse("assets/f117.obj");
+    obj := Obj.parse("assets/drone.obj");
     defer Obj.destroy(*obj);
     state.mesh = Mesh.create_mesh(obj.vertices, obj.faces);
 
-    state.mesh_texture = Texture.load("assets/f117.png", flip = true);
+    state.mesh_texture = Texture.load("assets/drone.png", flip = true);
 }
 
 destroy :: () {
