@@ -5,10 +5,10 @@ This is architecturally horrible - `main.jai` does many things that is should no
 
 ![Software rendered drone](./images/software_rendered_drone.png)
 
-[Building](#building)
-[Lectur notes](#lecture-notes)
-[Capabilities](#capabilities)
-[Controls](#controls)
+- [Building](#building)
+- [Lectur notes](#lecture-notes)
+- [Capabilities](#capabilities)
+- [Controls](#controls)
 
 ## Building
 
