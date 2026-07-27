@@ -150,8 +150,8 @@ update :: () {
         delta_time = xx (delta_time_millis / 1000.0); // converting to seconds
     }
 
-    state.camera.position.x += 5 * delta_time;
-    state.camera.position.y += 5 * delta_time;
+    state.camera.position.x += 3 * delta_time;
+    state.camera.position.y += 3 * delta_time;
     state.view_matrix = My_Math.make_look_at_matrix(state.camera.position, state.mesh.translation, { 0, 1, 0 });
 
     array_reset_keeping_memory(*state.triangles_to_render);
