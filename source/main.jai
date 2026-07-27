@@ -53,8 +53,10 @@ Cull_Mode :: enum {
 }
 
 Camera :: struct {
-    position: My_Math.Vector3 = { 0, 0, 0 };
-    fov:      int            = 640;
+    position:  My_Math.Vector3 = { 0, 0, 0 };
+    direction: My_Math.Vector3;
+
+    fov: float = Math.PI / 3.0; // 60 degrees in radians,
 }
 
 FPS: float : 60;
@@ -89,7 +91,7 @@ setup :: () {
 
     state.projection_matrix = My_Math.make_perspective_projection_matrix(
         cast(float, Display.window_height) / cast(float, Display.window_width),
-        Math.PI / 3.0, // 60 degrees in radians,
+        state.camera.fov,
         0.1,
         100,
     );
