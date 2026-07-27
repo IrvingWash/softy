@@ -6,11 +6,13 @@ renderer: *SDL_Renderer;
 
 color_buffer: [..]u32;
 color_buffer_texture: *SDL_Texture;
+z_buffer: [..]float;
 
 init :: () {
     init_window();
 
     array_resize(*color_buffer, window_width * window_height);
+    array_resize(*z_buffer, window_width * window_height);
 
     SDL_PIXELFORMAT_ARGB8888 :: 0x16362004;
     SDL_PIXELFORMAT_RGBA8888 :: 0x16462004;
@@ -25,8 +27,9 @@ init :: () {
 }
 
 deinit :: () {
-    SDL_DestroyTexture(color_buffer_texture);
+    array_free(z_buffer);
 
+    SDL_DestroyTexture(color_buffer_texture);
     array_free(color_buffer);
 
     destroy_window();
@@ -34,6 +37,7 @@ deinit :: () {
 
 start_drawing :: () {
     clear_color_buffer(0xFF000000);
+    clear_z_buffer();
 }
 
 finish_drawing :: () {
@@ -262,11 +266,15 @@ draw_texel :: (
 ) {
     alpha, beta, gamma := My_Math.calculate_barycentric_weights(a.xy, b.xy, c.xy, { xx x, xx y });
 
+    interpolated_reciprocal_w := 1  / a.w * alpha + 1  / b.w * beta + 1  / c.w * gamma;
+
+    if interpolated_reciprocal_w < z_buffer[y * window_width + x] {
+        return;
+    }
+
     interpolated_u: float;
     interpolated_v: float;
     {
-        interpolated_reciprocal_w := 1  / a.w * alpha + 1  / b.w * beta + 1  / c.w * gamma;
-
         interpolated_u = (a_uv.u / a.w * alpha + b_uv.u / b.w * beta + c_uv.u / c.w * gamma) / interpolated_reciprocal_w;
         interpolated_v = (a_uv.v / a.w * alpha + b_uv.v / b.w * beta + c_uv.v / c.w * gamma) / interpolated_reciprocal_w;
     }
@@ -282,6 +290,8 @@ draw_texel :: (
     color := texture.texels[index];
 
     draw_pixel(x, y, color);
+
+    z_buffer[y * window_width + x] = interpolated_reciprocal_w;
 }
 
 
@@ -382,6 +392,12 @@ render_color_buffer :: () {
 clear_color_buffer :: (clear_color: u32) {
     for *color: color_buffer {
         color.* = clear_color;
+    }
+}
+
+clear_z_buffer :: () {
+    for *depth: z_buffer {
+        depth.* = 0;
     }
 }
 

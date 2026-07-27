@@ -104,8 +104,8 @@ setup :: () {
 destroy :: () {
     array_free(state.triangles_to_render);
 
-    Mesh.destroy_mesh(*state.mesh);
     Texture.destroy(*state.mesh_texture);
+    Mesh.destroy_mesh(*state.mesh);
 }
 
 process_input :: () {
@@ -234,7 +234,6 @@ update :: () {
         // Project
         projected_triangle: Triangle.Triangle = {
             color = face_color,
-            average_depth = (transformed_vertices[0].z + transformed_vertices[1].z + transformed_vertices[2].z) / 3.0,
             uvs[0] = face.a_uv,
             uvs[1] = face.b_uv,
             uvs[2] = face.c_uv,
@@ -255,11 +254,6 @@ update :: () {
 
         array_add(*state.triangles_to_render, projected_triangle);
     }
-
-    quick_sort(
-        state.triangles_to_render,
-        (a: Triangle.Triangle, b: Triangle.Triangle) -> float { return b.average_depth - a.average_depth; }
-    );
 }
 
 render :: () {

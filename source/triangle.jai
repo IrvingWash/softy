@@ -4,8 +4,6 @@ Triangle :: struct {
     color: u32 = 0xFFFFFFFF;
 
     uvs: [3]Texture.Texture_Coordinates;
-
-    average_depth: float;
 }
 
 // Indices into a list of vertices which make up a face
