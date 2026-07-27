@@ -31,6 +31,7 @@ State :: struct {
     view_matrix:       My_Math.Matrix4;
 
     camera: Camera;
+    camera.position = { 0, 0, -5 };
 
     mesh:         Mesh.Mesh;
     mesh_texture: Texture.Texture;
@@ -40,6 +41,7 @@ State :: struct {
     triangles_to_render: [..]Triangle.Triangle;
 }
 
+// @Todo: Change this to enum_flags
 Polygon_Mode :: enum {
     WIREFRAME_AND_VERTICES;
     WIREFRAME;
@@ -91,11 +93,11 @@ setup :: () {
         100,
     );
 
-    obj := Obj.parse("assets/cube.obj");
+    obj := Obj.parse("assets/crab.obj");
     defer Obj.destroy(*obj);
     state.mesh = Mesh.create_mesh(obj.vertices, obj.faces);
 
-    state.mesh_texture = Texture.load("assets/cube.png", flip = true);
+    state.mesh_texture = Texture.load("assets/crab.png", flip = true);
 }
 
 destroy :: () {
@@ -130,6 +132,20 @@ process_input :: () {
                     state.cull_backfaces = .BACKFACES;
                 case SDLK_d;
                     state.cull_backfaces = .NONE;
+                case SDLK_w;
+                    state.camera.forward_velocity = state.camera.direction * 0.1; // This should be multiplied by delta_time
+                    state.camera.position += state.camera.forward_velocity;
+                case SDLK_a;
+                    state.camera.yaw -= 0.01; // This should be multiplied by delta_time
+                case SDLK_r;
+                    state.camera.forward_velocity = state.camera.direction * 0.1; // This should be multiplied by delta_time
+                    state.camera.position -= state.camera.forward_velocity;
+                case SDLK_s;
+                    state.camera.yaw += 0.01; // This should be multiplied by delta_time
+                case SDLK_UP;
+                    state.camera.position.y += 0.1; // This should be multiplied by delta_time
+                case SDLK_DOWN;
+                    state.camera.position.y -= 0.1; // This should be multiplied by delta_time
             }
         case .SDL_QUIT;
             state.is_running = false;
@@ -150,29 +166,38 @@ update :: () {
         delta_time = xx (delta_time_millis / 1000.0); // converting to seconds
     }
 
-    state.camera.position.x += 3 * delta_time;
-    state.camera.position.y += 3 * delta_time;
-    state.view_matrix = My_Math.make_look_at_matrix(state.camera.position, state.mesh.translation, { 0, 1, 0 });
+    { // Update camera and make view matrix
+        target := My_Math.Vector3.{ 0, 0, 1 };
+        camera_yaw_rotation := My_Math.make_rotation_around_y_matrix(state.camera.yaw);
+        state.camera.direction = (camera_yaw_rotation * target).xyz;
+        target = state.camera.position + state.camera.direction;
+
+        WORLD_UP :: My_Math.Vector3.{ 0, 1, 0 };
+
+        state.view_matrix = My_Math.make_look_at_matrix(state.camera.position, target, WORLD_UP);
+    }
 
     array_reset_keeping_memory(*state.triangles_to_render);
 
-    translation_matrix       := My_Math.make_translation_matrix(state.mesh.translation);
-    scale_matrix             := My_Math.make_scale_matrix(state.mesh.scale);
-    rotation_around_x_matrix := My_Math.make_rotation_around_x_matrix(state.mesh.rotation.x);
-    rotation_around_y_matrix := My_Math.make_rotation_around_y_matrix(state.mesh.rotation.y);
-    rotation_around_z_matrix := My_Math.make_rotation_around_z_matrix(state.mesh.rotation.z);
-
-    // Order matters!
-    // First      - Scale
-    // Then       - Rotate
-    // At the end - Translate
-    // [T]*[R]*[S]*v (read right to left...)
     world_matrix := My_Math.Matrix4_Identity;
-    world_matrix = scale_matrix             * world_matrix;
-    world_matrix = rotation_around_z_matrix * world_matrix;
-    world_matrix = rotation_around_y_matrix * world_matrix;
-    world_matrix = rotation_around_x_matrix * world_matrix;
-    world_matrix = translation_matrix       * world_matrix;
+    { // Transform the mesh
+        translation_matrix       := My_Math.make_translation_matrix(state.mesh.translation);
+        scale_matrix             := My_Math.make_scale_matrix(state.mesh.scale);
+        rotation_around_x_matrix := My_Math.make_rotation_around_x_matrix(state.mesh.rotation.x);
+        rotation_around_y_matrix := My_Math.make_rotation_around_y_matrix(state.mesh.rotation.y);
+        rotation_around_z_matrix := My_Math.make_rotation_around_z_matrix(state.mesh.rotation.z);
+
+        // Order matters!
+        // First      - Scale
+        // Then       - Rotate
+        // At the end - Translate
+        // [T]*[R]*[S]*v (read right to left...)
+        world_matrix = scale_matrix             * world_matrix;
+        world_matrix = rotation_around_z_matrix * world_matrix;
+        world_matrix = rotation_around_y_matrix * world_matrix;
+        world_matrix = rotation_around_x_matrix * world_matrix;
+        world_matrix = translation_matrix       * world_matrix;
+    }
 
     normalized_sun_direction := My_Math.normalize(state.sun.direction);
 
@@ -238,13 +263,14 @@ update :: () {
         for transformed: transformed_vertices {
             projected_triangle.points[it_index] = My_Math.project_vector_perspective(state.projection_matrix, transformed);
 
-            // Why do we do this after using a projection matrix? Because this is handled by the view transform, not by projection
+            // This is viewport transform
             projected_triangle.points[it_index].x *= Display.window_width / 2;
             projected_triangle.points[it_index].y *= Display.window_height / 2;
 
             // Flip y because our pixel buffer has y down (because we start in the upper left corner), but the models have y up
             projected_triangle.points[it_index].y *= -1;
 
+            // This is viewport transform
             projected_triangle.points[it_index].x += Display.window_width / 2;
             projected_triangle.points[it_index].y += Display.window_height / 2;
         }
@@ -331,4 +357,4 @@ setup_formatting :: () {
     print_style.default_format_struct.use_newlines_if_long_form = true;
 }
 
-using,only(operator -, operator *) My_Math;
+using,only(operator -, operator *, operator +=, operator +) My_Math;
