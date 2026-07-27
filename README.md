@@ -23,5 +23,6 @@ typst compile name_of_note.typ
 - Rendering meshes loaded from Wavefront `.obj` files
 - Flat-shading based on the sun-ray direction for colored meshes
 - Textured rendering using barycentric coordinates
-- Full matrix-based transformations (model, projection transformations)
+- Camera
+- Full matrix-based transformations (model, view, projection transformations)
 - Z-buffering
