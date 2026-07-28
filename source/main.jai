@@ -16,6 +16,7 @@ Triangle :: #import,file "triangle.jai";
 Mesh     :: #import,file "mesh.jai";
 Obj      :: #import,file "obj_parser.jai";
 Texture  :: #import,file "texture.jai";
+Clipping :: #import,file "clipping.jai";
 
 #load "light.jai";
 #load "camera.jai";
