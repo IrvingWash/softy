@@ -473,6 +473,14 @@ create_polygon :: (vertices: ..Vector3) -> Polygon {
     return polygon;
 }
 
+make_vector4 :: (v: Vector3) -> Vector4 {
+    return Vector4.{
+        x = v.x,
+        y = v.y,
+        z = v.z,
+    };
+}
+
 
 
 #scope_file

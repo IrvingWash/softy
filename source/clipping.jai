@@ -62,14 +62,33 @@ make_frustum_planes :: (fov: float, z_near: float, z_far: float) -> Frustum_Plan
     return result;
 }
 
+convert_polygon_into_triangles :: (polygon: My_Math.Polygon) -> [..]Triangle.Triangle {
+    result: [..]Triangle.Triangle;
+    array_resize(*result, polygon.vertex_count - 2);
+
+    for *triangle: result {
+        zero := 0;
+        one  := it_index + 1;
+        two  := one + 1;
+
+        triangle.points[0] = My_Math.make_vector4(polygon.vertices[zero]);
+        triangle.points[1] = My_Math.make_vector4(polygon.vertices[one]);
+        triangle.points[2] = My_Math.make_vector4(polygon.vertices[two]);
+    }
+
+    return result;
+}
+
 
 
 #scope_file
 
 FRUSTUM_PLANES_COUNT :: #run enum_highest_value(Frustum_Plane) + 1;
 
-// @Todo @Incomplete
+// This is horrible, why pointer arithmetics, Gustavo?
 clip_polygon_against_plane :: (polygon: *My_Math.Polygon, frustum_plane: My_Math.Plane) {
+    if polygon.vertex_count == 0 return;
+
     inside_vertices:       [My_Math.Polygon.MAX_VERTICES]My_Math.Vector3;
     inside_vertices_count: int;
 
@@ -113,7 +132,8 @@ clip_polygon_against_plane :: (polygon: *My_Math.Polygon, frustum_plane: My_Math
 }
 
 #import "Basic";
-Math    :: #import "Math";
-My_Math :: #import,file "my_math.jai";
+Math     :: #import "Math";
+My_Math  :: #import,file "my_math.jai";
+Triangle :: #import,file "triangle.jai";
 
 using,only(operator -, operator *, operator +) My_Math;

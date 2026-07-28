@@ -1,1 +1,1 @@
-[Polygon struct](https://courses.pikuma.com/courses/take/learn-computer-graphics-programming/lessons/15961124-polygon-typedef)
+[Horizontal and vertical FOV](https://courses.pikuma.com/courses/take/learn-computer-graphics-programming/lessons/15961854-horizontal-vertical-fov-angles)

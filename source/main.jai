@@ -271,31 +271,36 @@ update :: () {
             );
 
             Clipping.clip_polygon(*polygon, state.frustum_planes);
+
+            triangles_after_clipping := Clipping.convert_polygon_into_triangles(polygon,, temp);
+
+            for *triangle_after_clipping: triangles_after_clipping {
+                // Project
+                projected_triangle: Triangle.Triangle = {
+                    color = face_color,
+                    uvs[0] = face.a_uv,
+                    uvs[1] = face.b_uv,
+                    uvs[2] = face.c_uv,
+                };
+
+                for vertex: triangle_after_clipping.points {
+                    projected_triangle.points[it_index] = My_Math.project_vector_perspective(state.projection_matrix, vertex);
+
+                    // This is viewport transform
+                    projected_triangle.points[it_index].x *= Display.window_width / 2;
+                    projected_triangle.points[it_index].y *= Display.window_height / 2;
+
+                    // Flip y because our pixel buffer has y down (because we start in the upper left corner), but the models have y up
+                    projected_triangle.points[it_index].y *= -1;
+
+                    // This is viewport transform
+                    projected_triangle.points[it_index].x += Display.window_width / 2;
+                    projected_triangle.points[it_index].y += Display.window_height / 2;
+                }
+
+                array_add(*state.triangles_to_render, projected_triangle);
+            }
         }
-
-        // Project
-        projected_triangle: Triangle.Triangle = {
-            color = face_color,
-            uvs[0] = face.a_uv,
-            uvs[1] = face.b_uv,
-            uvs[2] = face.c_uv,
-        };
-        for transformed: transformed_vertices {
-            projected_triangle.points[it_index] = My_Math.project_vector_perspective(state.projection_matrix, transformed);
-
-            // This is viewport transform
-            projected_triangle.points[it_index].x *= Display.window_width / 2;
-            projected_triangle.points[it_index].y *= Display.window_height / 2;
-
-            // Flip y because our pixel buffer has y down (because we start in the upper left corner), but the models have y up
-            projected_triangle.points[it_index].y *= -1;
-
-            // This is viewport transform
-            projected_triangle.points[it_index].x += Display.window_width / 2;
-            projected_triangle.points[it_index].y += Display.window_height / 2;
-        }
-
-        array_add(*state.triangles_to_render, projected_triangle);
     }
 }
 
