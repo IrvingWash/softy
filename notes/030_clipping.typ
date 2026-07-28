@@ -102,3 +102,45 @@ To determine if a point is inside the plane, we just use the vector dot operatio
 
 $Q$ is inside the plane if:
 $ (Q - P) dot arrow(n) > 0 $
+
+== Finding Intersection Between a Plane And a Line
+
+#let P = text(yellow)[$P$];
+#let I = text(purple)[$I$];
+#let t = text(blue)[$t$];
+#let Q1 = $Q_1$
+#let Q2 = $Q_2$
+#let normal = text(green)[$arrow(n)$]
+#let dotQ1 = text($"dot"_Q_1$)
+#let dotQ2 = text($"dot"_Q_2$)
+
+#figure(
+  image("./images/plane_line_intersection.png", height: 20%),
+)
+
+We need to find #I.
+
+"Linear interpolation equation":
+$ #I = #Q1 + #t * (#Q2 - #Q1) $
+
+Where #t is a value between $0$ and $1$. Using this formula we can "walk" over the #Q1#Q2 line and find any point on it.
+#t is called "Interpolation factor".
+- When #t is $0$, we get #Q1, because $#I = #Q1 + 0 * (#Q2 - #Q1)$
+- When #t is $1$, we get #Q2, because $#I = #Q1 + 1 * (#Q2 - #Q1)$
+
+So, to find #I we need to find #t.
+
+$ (#I - #P) = (#Q1 - #P) + #t * ((#Q2 - #P) - (#Q1 - #P)) $
+$ #normal dot (#I - #P) = #normal dot (#Q1 - #P) + #t * (#normal dot (#Q2 - #P) - #normal dot (#Q1 - #P)) $
+$ #normal dot (#I - #P) = #dotQ1 + #t * (#dotQ2 - #dotQ1) $
+
+#dotQ1 and #dotQ2 are the dot products that we use to find whether a point is inside a plane.
+
+$#normal dot (#I - #P)$ is simply $0$ because it's the dot product between a line *on* the plane and the normal of that plane.
+
+And we get this:
+$ 0 = #dotQ1 + #t * (#dotQ2 - #dotQ1) $
+
+$ #t = (-#dotQ1) / (#dotQ2 - #dotQ1) $
+
+$ #t = #dotQ1 / (#dotQ1 - #dotQ2) $
