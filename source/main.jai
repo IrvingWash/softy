@@ -30,7 +30,7 @@ State :: struct {
 
     projection_matrix: My_Math.Matrix4;
     view_matrix:       My_Math.Matrix4;
-    frustum_planes:    []My_Math.Plane;
+    frustum_planes:    Clipping.Frustum_Planes;
 
     camera: Camera;
     camera.position = { 0, 0, -5 };
@@ -226,7 +226,7 @@ update :: () {
         }
 
         // We calculate this ourselves, but .obj files contain normal data
-        face_normal: My_Math.Vector3;
+        face_normal: My_Math.Vector3 = ---;
         {
             vertex_a := transformed_vertices[0].xyz;
             vertex_b := transformed_vertices[1].xyz;
@@ -253,12 +253,27 @@ update :: () {
         }
 
         // Shade
-        face_color: u32;
+        face_color: u32 = ---;
         {
             // We multiply by -1 because we want to represent light's direction as a direction from the light source
             alignment := -My_Math.dot(face_normal, normalized_sun_direction);
 
             face_color = apply_light_intensity(face.color, alignment);
+        }
+
+        // Clip
+        polygon: My_Math.Polygon = ---;
+        {
+            polygon := My_Math.create_polygon(
+                transformed_vertices[0].xyz,
+                transformed_vertices[1].xyz,
+                transformed_vertices[2].xyz,
+            );
+
+            Clipping.clip_polygon(*polygon, state.frustum_planes);
+
+            // @Todo break the polygon into triangles
+            // @Incomplete
         }
 
         // Project

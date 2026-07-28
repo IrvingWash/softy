@@ -3,6 +3,13 @@ Plane :: struct {
     normal: Vector3;
 }
 
+Polygon :: struct {
+    vertices:     [MAX_VERTICES]Vector3;
+    vertex_count: int;
+
+    MAX_VERTICES :: 10;
+}
+
 // Column-vectors
 Matrix4 :: struct {
     elements: [4][4]float;
@@ -451,6 +458,22 @@ make_look_at_matrix :: (eye: Vector3, target: Vector3, world_up: Vector3) -> Mat
 
     return matrix;
 }
+
+create_polygon :: (vertices: ..Vector3) -> Polygon {
+    assert(vertices.count <= Polygon.MAX_VERTICES, "To many vertices, Polygon can hold only %", Polygon.MAX_VERTICES);
+
+    polygon := Polygon.{
+        vertex_count = vertices.count,
+    };
+
+    for vertex: vertices {
+        polygon.vertices[it_index] = vertex;
+    }
+
+    return polygon;
+}
+
+
 
 #scope_file
 
