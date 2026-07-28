@@ -144,3 +144,36 @@ $ 0 = #dotQ1 + #t * (#dotQ2 - #dotQ1) $
 $ #t = (-#dotQ1) / (#dotQ2 - #dotQ1) $
 
 $ #t = #dotQ1 / (#dotQ1 - #dotQ2) $
+
+== Clipping a Polygon Against a Plane
+
+#let Qn = $Q_n$
+#let Qnext = $Q_(n+1)$
+
+#figure(
+  image("./images/polygon_plane_intersection.png", width: 50%),
+)
+
+The algorithm:
+- Start with any point #Qn
+- If #Qn is outside the plane, put it in a list "points outside of the plane"
+- Pick #Qnext. If it's now inside the plane, find the intersection of #Qn#Qnext with the plane. Put the intersection point in both lists. Put #Qnext into the list "points inside the plane".
+
+#table(
+  columns: (auto, auto),
+  align: horizon,
+  table.header([*Inside*], [*Outside*]),
+  [$I_1$],
+  [$Q_1$],
+  [$Q_2$],
+  [$I_1$],
+  [$Q_3$],
+  [$I_2$],
+  [$Q_4$],
+  [$Q_5$],
+  [$I_2$],
+)
+
+The useful list is the *Inside* list because it contains all the points that we need to draw.
+
+Now the points from the *Inside* list are sent as an input for the test against the next frustum plane and so on.

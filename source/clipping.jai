@@ -1,8 +1,3 @@
-Plane :: struct {
-    point:  My_Math.Vector3;
-    normal: My_Math.Vector3;
-}
-
 Frustum_Planes :: enum {
     LEFT;
     RIGHT;
@@ -14,13 +9,13 @@ Frustum_Planes :: enum {
 
 FRUSTUM_PLANES_COUNT :: #run enum_highest_value(Frustum_Planes) + 1;
 
-make_frustum_planes :: (fov: float, z_near: float, z_far: float) -> [FRUSTUM_PLANES_COUNT]Plane {
+make_frustum_planes :: (fov: float, z_near: float, z_far: float) -> [FRUSTUM_PLANES_COUNT]My_Math.Plane {
     half_fov := fov / 2;
 
     cos_half_fov := Math.cos(half_fov);
     sin_half_fov := Math.sin(half_fov);
 
-    result: [FRUSTUM_PLANES_COUNT]Plane;
+    result: [FRUSTUM_PLANES_COUNT]My_Math.Plane;
 
     result[Frustum_Planes.LEFT] = {
         normal = {

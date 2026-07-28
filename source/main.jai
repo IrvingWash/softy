@@ -30,7 +30,7 @@ State :: struct {
 
     projection_matrix: My_Math.Matrix4;
     view_matrix:       My_Math.Matrix4;
-    frustum_planes:    []Clipping.Plane;
+    frustum_planes:    []My_Math.Plane;
 
     camera: Camera;
     camera.position = { 0, 0, -5 };

@@ -1,3 +1,8 @@
+Plane :: struct {
+    point:  Vector3;
+    normal: Vector3;
+}
+
 // Column-vectors
 Matrix4 :: struct {
     elements: [4][4]float;
