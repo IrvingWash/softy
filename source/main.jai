@@ -30,6 +30,7 @@ State :: struct {
 
     projection_matrix: My_Math.Matrix4;
     view_matrix:       My_Math.Matrix4;
+    frustum_planes:    []Clipping.Plane;
 
     camera: Camera;
     camera.position = { 0, 0, -5 };
@@ -89,9 +90,15 @@ setup :: () {
 
     state.projection_matrix = My_Math.make_perspective_projection_matrix(
         cast(float, Display.window_height) / cast(float, Display.window_width),
-        state.camera.fov,
-        0.1,
-        100,
+        fov_in_radians = state.camera.fov,
+        z_near         = state.camera.z_near,
+        z_far          = state.camera.z_far,
+    );
+
+    state.frustum_planes = Clipping.make_frustum_planes(
+        fov    = state.camera.fov,
+        z_near = state.camera.z_near,
+        z_far  = state.camera.z_far,
     );
 
     obj := Obj.parse("assets/crab.obj");
