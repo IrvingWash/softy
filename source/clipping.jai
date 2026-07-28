@@ -68,10 +68,52 @@ make_frustum_planes :: (fov: float, z_near: float, z_far: float) -> Frustum_Plan
 
 FRUSTUM_PLANES_COUNT :: #run enum_highest_value(Frustum_Plane) + 1;
 
+// @Todo @Incomplete
 clip_polygon_against_plane :: (polygon: *My_Math.Polygon, frustum_plane: My_Math.Plane) {
-    // @Incomplete
+    inside_vertices:       [My_Math.Polygon.MAX_VERTICES]My_Math.Vector3;
+    inside_vertices_count: int;
+
+    // Q_n and Q_n-1
+    current_vertex  := *polygon.vertices[0];
+    previous_vertex := *polygon.vertices[polygon.vertex_count - 1];
+
+    // How aligned Q_1 and Q_last are with the plane
+    dot_current_vertex: float;
+    dot_previous_vertex := My_Math.dot(previous_vertex.* - frustum_plane.point, frustum_plane.normal);
+
+    while current_vertex != *polygon.vertices[polygon.vertex_count] {
+        dot_current_vertex  = My_Math.dot(current_vertex.* - frustum_plane.point, frustum_plane.normal);
+
+        // We changed from inside to outised or vice-versa
+        if dot_current_vertex * dot_previous_vertex < 0 {
+            // the "t"
+            interpolation_factor := dot_previous_vertex / (dot_previous_vertex - dot_current_vertex);
+            intersection_point   := previous_vertex.* + ((current_vertex.* - previous_vertex.*) * interpolation_factor);
+
+            inside_vertices[inside_vertices_count] = intersection_point;
+            inside_vertices_count += 1;
+        }
+
+        // Vertex is inside the plane
+        if dot_current_vertex > 0 {
+            inside_vertices[inside_vertices_count] = current_vertex.*;
+            inside_vertices_count += 1;
+        }
+
+        // Move to the next vertex
+        previous_vertex     = current_vertex;
+        dot_previous_vertex = dot_current_vertex;
+        current_vertex     += 1;
+    }
+
+    for i: 0..inside_vertices_count - 1 {
+        polygon.vertices[i] = inside_vertices[i];
+    }
+    polygon.vertex_count = inside_vertices_count;
 }
 
 #import "Basic";
 Math    :: #import "Math";
 My_Math :: #import,file "my_math.jai";
+
+using,only(operator -, operator *, operator +) My_Math;

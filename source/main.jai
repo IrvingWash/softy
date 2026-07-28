@@ -101,11 +101,11 @@ setup :: () {
         z_far  = state.camera.z_far,
     );
 
-    obj := Obj.parse("assets/crab.obj");
+    obj := Obj.parse("assets/cube.obj");
     defer Obj.destroy(*obj);
     state.mesh = Mesh.create_mesh(obj.vertices, obj.faces);
 
-    state.mesh_texture = Texture.load("assets/crab.png", flip = true);
+    state.mesh_texture = Texture.load("assets/cube.png", flip = true);
 }
 
 destroy :: () {
@@ -271,9 +271,6 @@ update :: () {
             );
 
             Clipping.clip_polygon(*polygon, state.frustum_planes);
-
-            // @Todo break the polygon into triangles
-            // @Incomplete
         }
 
         // Project
