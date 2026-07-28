@@ -87,3 +87,18 @@ $ P = (0,0,"zfar") $
 $ n x = 0 $
 $ n y = 0 $
 $ n z = -1 "(left-handed only)" $
+
+== Defining Points Inside And Outside Planes
+
+A plane is infinite, thus it separates the 3D space into two half-spaces.
+- A point is inside the plane if it's in the half-space into which points the normal.
+- A point is outside the plane if it's in the half-space into which points the negative normal.
+
+To determine if a point is inside the plane, we just use the vector dot operation to determine how much the point is aligned with the plane's normal.
+
+#figure(
+  image("./images/point_on_plane.png", width: 50%),
+)
+
+$Q$ is inside the plane if:
+$ (Q - P) dot arrow(n) > 0 $
