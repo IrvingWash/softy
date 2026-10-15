@@ -101,11 +101,11 @@ setup :: () {
         z_far  = state.camera.z_far,
     );
 
-    obj := Obj.parse("assets/cube.obj");
+    obj := Obj.parse("assets/f22.obj");
     defer Obj.destroy(*obj);
     state.mesh = Mesh.create_mesh(obj.vertices, obj.faces);
 
-    state.mesh_texture = Texture.load("assets/cube.png", flip = true);
+    state.mesh_texture = Texture.load("assets/f22.png", flip = true);
 }
 
 destroy :: () {
@@ -173,6 +173,8 @@ update :: () {
 
         delta_time = xx (delta_time_millis / 1000.0); // converting to seconds
     }
+
+    state.mesh.rotation.x += 0.01;
 
     { // Update camera and make view matrix
         target := My_Math.Vector3.{ 0, 0, 1 };
